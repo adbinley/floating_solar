@@ -2,33 +2,71 @@ library(sf)
 library(tidyverse)
 library(ebirdst)
 library(terra)
+library(stringr)
 
 #load in lake data
-lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
-plot(st_geometry(lakes[1,]))
+# lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
+# plot(st_geometry(lakes[1,]))
+#deal with later, data too big with rasters
 
 
 #load in eBird data
+#this is the original species selection
 species_selection <- read.csv("data/species_selection.csv")
 species_selection <- species_selection[1:177,]
-species_selection <- species_selection %>%
+species_selection1 <- species_selection %>%
   filter(include == 1)
 
 ebd_data <- ebirdst_runs
-species_data <- left_join(species_selection,ebd_data, by = "common_name")
+
+species_data <- left_join(species_selection1,ebd_data, by = "common_name")
+
+#test <- rast("D:/floating_solar/generated/osprey_max_values.tif")
+
+#adding more species to be more comprehensive
+#do in batches so that you can keep code running while you sort through new species
+complete <- list.files(path = "D:/floating_solar/generated/")
+complete_codes <- str_extract(complete,"[^_]+")
+
+ebd_with_trends <- ebirdst_runs %>%
+  filter(has_trends==T)
+ebd_trends_am <- ebd_with_trends %>%
+  filter(trends_region == "north_america")
+write.csv(ebd_trends_am, file = "data/species_selection_updated.csv")
+#add species vulnerability codes manually?
+###
+
+#new species to run
+updated_selection <- read.csv("data/species_selection_updated.csv")
+updated_selection1 <- updated_selection[1:100,] %>%
+  filter(habitat_include == 1 & northeast_america == 1)
+
+species_codes_round2 <- updated_selection1 %>%
+  filter(!species_code %in% complete_codes)
+
+species_data <- species_codes_round2
 
 #sp <- "amewig" #loop here eventually
 
-#for(s in 1:length(species_data$species_code)){
+for(s in 1:length(species_data$species_code)){
   
-for(s in 1:3){
+#for(s in 1:3){
+  
+  skip_to_next <- FALSE
   
   sp <- species_data$species_code[s]
 
-  bird_data <- rast(paste0("D:/floating_solar/ebird/2022/",sp,"/weekly/",sp,"_abundance_median_3km_2022.tif"))
+  # tryCatch(bird_data <- rast(paste0("D:/floating_solar/ebird/2022/",sp,"/weekly/",sp,"_abundance_median_3km_2022.tif")),
+  #          error = function(e){skip_to_next <<- TRUE})
+  
+  tryCatch(bird_data <- rast(paste0("D:/big_data/eBird_FAC/2022/",sp,"/weekly/",sp,"_abundance_median_3km_2022.tif")),
+           error = function(e){skip_to_next <<- TRUE})
+  
+  
+  if(skip_to_next) {next}
 
   #crop to manageable size
-  extent <- ext(-10000000, -4500000, 4000000, 9000000)
+  extent <- ext(-13000000, -4500000, 0, 9000000)
   bird_data_cr <- crop(bird_data, extent)
 
   #calculate proportion of total rel abundance that each cell represents
@@ -42,8 +80,13 @@ for(s in 1:3){
   week_list <- list()
   
   for(i in 1:nlyr(bird_data_cr)){
+    
+    skip_to_next <- FALSE
 
-    bird_prop_abd <- bird_data_cr[[i]]/sum$sum[i]
+    tryCatch(bird_prop_abd <- bird_data_cr[[i]]/sum$sum[i],
+    error = function(e){skip_to_next <<- TRUE})
+
+    if(skip_to_next) {next}
     
     week_list[[i]] <- bird_prop_abd
     
