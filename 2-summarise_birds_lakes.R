@@ -5,8 +5,11 @@ library(terra)
 library(stringr)
 
 #load in lake data
-# lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
-# plot(st_geometry(lakes[1,]))
+lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
+plot(st_geometry(lakes[1,]))
+plot(st_geometry(lakes))
+
+lake_ext <- st_bbox(lakes)
 #deal with later, data too big with rasters
 
 
@@ -25,8 +28,6 @@ species_data <- left_join(species_selection1,ebd_data, by = "common_name")
 
 #adding more species to be more comprehensive
 #do in batches so that you can keep code running while you sort through new species
-complete <- list.files(path = "D:/floating_solar/generated/")
-complete_codes <- str_extract(complete,"[^_]+")
 
 ebd_with_trends <- ebirdst_runs %>%
   filter(has_trends==T)
@@ -38,11 +39,16 @@ write.csv(ebd_trends_am, file = "data/species_selection_updated.csv")
 
 #new species to run
 updated_selection <- read.csv("data/species_selection_updated.csv")
-updated_selection1 <- updated_selection[1:100,] %>%
-  filter(habitat_include == 1 & northeast_america == 1)
+updated_selection1 <- updated_selection %>%
+  filter(northeast_america == 1)
+
+complete <- list.files(path = "D:/floating_solar/generated/")
+complete_codes <- str_extract(complete,"[^_]+")
+
+new_codes <- setdiff(updated_selection1$species_code,complete_codes)
 
 species_codes_round2 <- updated_selection1 %>%
-  filter(!species_code %in% complete_codes)
+  filter(species_code %in% new_codes)
 
 species_data <- species_codes_round2
 
