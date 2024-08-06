@@ -162,7 +162,7 @@ for(a in 1:length(complete_codes)){
   lake_bird_data$species_code <- rep(sp, length(lake_bird_data$max))
   lake_bird_data$Water_ID <- lakes$Water_ID
 
-  save(lake_bird_data, file = "D:/floating_solar/data_outputs/",sp,"_lake_abd_weight.RData")
+  save(lake_bird_data, file = paste0("D:/floating_solar/data_outputs/",sp,"_lake_abd_weight.RData"))
   
   }
 
