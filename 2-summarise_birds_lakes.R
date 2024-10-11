@@ -6,11 +6,12 @@ library(stringr)
 
 #load in lake data
 lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
+#take a look
 plot(st_geometry(lakes[1,]))
 plot(st_geometry(lakes))
-
+#extent?
 lake_ext <- st_bbox(lakes)
-#deal with later, data too big with rasters
+
 
 
 #load in eBird data
@@ -27,7 +28,6 @@ lake_ext <- st_bbox(lakes)
 # #test <- rast("D:/floating_solar/generated/osprey_max_values.tif")
 # 
 # #adding more species to be more comprehensive
-# #do in batches so that you can keep code running while you sort through new species
 # 
 # ebd_with_trends <- ebirdst_runs %>%
 #   filter(has_trends==T)
@@ -42,9 +42,10 @@ updated_selection <- read.csv("data/species_selection_updated.csv")
 updated_selection1 <- updated_selection %>%
   filter(northeast_america == 1)
 
+#when loop fails (memory shortage) use this to figure out where to restart
 complete <- list.files(path = "D:/floating_solar/generated/")
 complete_codes <- str_extract(complete,"[^_]+")
-
+#codes that still need to run
 new_codes <- setdiff(updated_selection1$species_code,complete_codes)
 
 species_codes_round2 <- updated_selection1 %>%
@@ -52,19 +53,17 @@ species_codes_round2 <- updated_selection1 %>%
 
 species_data <- species_codes_round2
 
-#sp <- "amewig" #loop here eventually
-
+#loop through all species selected
 for(s in 1:length(species_data$species_code)){
   
-#for(s in 1:3){
+#for(s in 1:3){ #test loop on a few species first to make sure its working
   
   skip_to_next <- FALSE
   
   sp <- species_data$species_code[s]
-
-  # tryCatch(bird_data <- rast(paste0("D:/floating_solar/ebird/2022/",sp,"/weekly/",sp,"_abundance_median_3km_2022.tif")),
-  #          error = function(e){skip_to_next <<- TRUE})
   
+  #trycatch added in case one raster fails to load - won't break loop
+  #load raster into R for each species
   tryCatch(bird_data <- rast(paste0("D:/big_data/eBird_FAC/2022/",sp,"/weekly/",sp,"_abundance_median_3km_2022.tif")),
            error = function(e){skip_to_next <<- TRUE})
   
