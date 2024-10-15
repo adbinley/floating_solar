@@ -3,6 +3,7 @@ library(tidyverse)
 library(ebirdst)
 library(terra)
 library(stringr)
+library(viridis)
 
 #load in lake data
 lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
@@ -157,11 +158,104 @@ for(a in 1:length(complete_codes)){
   bird_data <- rast(paste0("D:/floating_solar/generated/",sp,"_max_values.tif"))
   bird_data1 <- bird_data*10000 #transformed to make numbers nicer to deal with
   
-  lake_bird_data <- zonal(bird_data1, z = lakes_vec_pro, fun = "sum", na.rm=T)
+  lake_bird_data <- zonal(bird_data1, z = lakes_vec_pro, fun = "sum", na.rm=T) 
+  #instead of doing this, should probably change NAs to 0s
+  #rerun eventually and fix, ignoring for now NOT DONE YET
   lake_bird_data$species_code <- rep(sp, length(lake_bird_data$max))
   lake_bird_data$Water_ID <- lakes$Water_ID
 
   save(lake_bird_data, file = paste0("D:/floating_solar/data_outputs/",sp,"_lake_abd_weight.RData"))
   
-  }
+}
 
+species <- list.files(path = "D:/floating_solar/generated/")
+species_codes <- str_extract(species,"[^_]+")
+
+lake_biodiversity <- list()
+
+for(s in 1:length(species_codes)){
+  
+  sp <- species_codes[s]
+
+  #the sum of abd importance for each lake 
+  load(paste0("D:/floating_solar/data_outputs/",sp,"_lake_abd_weight.RData"))
+
+  lake_biodiversity[[s]] <- lake_bird_data
+  
+}
+
+lake_biodiversity_df <- bind_rows(lake_biodiversity)
+save(lake_biodiversity_df, file = "D:/floating_solar/data_outputs/lake_ave_biodiversity.RData")
+
+#summarise by lake
+lake_bio_sum <- lake_biodiversity_df %>%
+  group_by(Water_ID)%>%
+  summarise(richness = sum(max>0,na.rm=T),
+            importance = sum(max,na.rm=T))#does this last one make sense? add actual diversity metric?
+
+rm(lake_biodiversity_df)
+rm(lake_biodiversity)
+
+lake_data <- st_drop_geometry(lakes)
+rm(lakes)
+
+all_data <- left_join(lake_data, lake_bio_sum)
+only_selected_lakes <- all_data %>%
+  filter(Suitabl_FP==1)
+ggplot(only_selected_lakes, aes(year1_ener))+
+  geom_histogram(binwidth = 10)
+
+#how does energy production relate to avian richness and importance? 
+#both with all lakes included, and with only those suitable for solar
+plot(all_data$richness,all_data$year1_ener)
+plot(only_selected_lakes$richness,only_selected_lakes$year1_ener)
+plot(all_data$importance, all_data$year1_ener)
+plot(only_selected_lakes$importance, only_selected_lakes$year1_ener)
+
+#how do importance and richness compare between suitable and unsuitable lakes
+all_data$Suitabl_FP <- as.factor(all_data$Suitabl_FP)
+ggplot(all_data)+
+  geom_boxplot(aes(x=Suitabl_FP, y = importance))
+ggplot(all_data)+
+  geom_boxplot(aes(x=Suitabl_FP, y = richness))
+
+#importance and richness compared to sites suitable based on "biodiversity" scenario from TNC
+ggplot(all_data)+
+  geom_boxplot(aes(x=as.factor(Biodiversi), y = importance))
+ggplot(all_data)+
+  geom_boxplot(aes(x=as.factor(Biodiversi), y = richness))
+ggplot(only_selected_lakes)+
+  geom_boxplot(aes(x=as.factor(Biodiversi), y = importance))
+ggplot(only_selected_lakes)+
+  geom_boxplot(aes(x=as.factor(Biodiversi), y = richness))
+
+#how do richness and importance relate to lake size?
+ggplot(all_data)+
+  geom_boxplot(aes(x=Water_Type, y = importance))
+ggplot(all_data)+
+  geom_boxplot(aes(x=Water_Type, y = richness))
+plot(all_data$importance, all_data$Shape_Area)
+plot(all_data$richness, all_data$Shape_Area)
+
+#can we plot lakes on the map as points instead of polygons?
+#size of point = energy, colour = birds
+#try hex map instead?
+points <- st_as_sf(all_data, coords=c('water_lon','water_lat'))
+points <- st_set_crs(points, crs = 4326)
+plot(st_geometry(points))
+#too many still
+points_select <- points %>%
+  filter(Suitabl_FP == 1)
+plot(st_geometry(points_select))
+
+ggplot()+
+  geom_point(data = only_selected_lakes, aes(x = water_lon, y = water_lat, color = richness, size = year1_ener))+
+  scale_color_viridis()
+
+#rank correlation between energy and birds in each state
+#need to think on this a bit more - zeros dont work with rank
+corr_all_data <- all_data %>%
+  group_by(STATE_ABBR)%>%
+  mutate(rank_corr = cor.test(x=year1_ener, y = richness))
+
+corr_total <- cor.test(all_data$year1_ener,all_data$richness, method = 'spearman')
