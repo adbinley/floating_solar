@@ -1,3 +1,10 @@
+library(sf)
+library(tidyverse)
+library(ebirdst)
+library(terra)
+library(stringr)
+library(viridis)
+
 #find average per cell instead
 lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
 lake_buffer <- st_buffer(lakes,5000)
