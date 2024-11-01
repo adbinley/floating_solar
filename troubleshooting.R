@@ -5,7 +5,7 @@ library(tidyverse)
 #trouble: ~300 lakes have 0 species richness and 0 biodiversity value... error?
 load("D:/floating_solar/data_outputs/all_importance_data.RData")
 
-no_birds <- all_data1 %>%
+no_birds <- all_data2 %>%
   filter(richness == 0)
 unique(no_birds$TNC_Bio_Va)
 range(no_birds$year1_ener)
@@ -29,4 +29,8 @@ ggplot()+
   geom_sf(data = NE_pro)+
   theme_void()
 #trouble is shot - weird waterbodies are off the coast and not captured well be eBIrd, plus not relevant for floating solar
-#removed from analysis
+#removed from analysis - did you actually remove these though?
+
+
+no_poo <- all_data2 %>%
+  filter(sum_biofoul_risk == 0) #same deal
