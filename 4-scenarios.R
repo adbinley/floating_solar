@@ -21,7 +21,7 @@ NE_pro <- st_transform(NE, crs = st_crs(4326))
 
 load("D:/floating_solar/data_outputs/all_importance_data.RData")
 
-only_selected_lakes <- all_data1 %>%
+only_selected_lakes <- all_data2 %>%
   filter(Suitabl_FP==1)%>%
   filter()
 
@@ -29,7 +29,8 @@ only_selected_lakes$bird_rank <- rank(-only_selected_lakes$richness, ties.method
 only_selected_lakes$energy_scaled <- scale(only_selected_lakes$year1_ener)
 
 plot_data <- only_selected_lakes %>%
-  arrange((richness))
+  arrange((richness))%>%
+  filter(richness!=0)
 
 png("figures/richness_solar_overlay.png", height = 12, width = 12, units = "in",res=300)
 
@@ -70,6 +71,38 @@ dev.off()
 #### biofouling ####
 
 #2. look at relationship between the concentration of biofouling species and solar energy
+
+load("D:/floating_solar/data_outputs/all_importance_data.RData")
+
+only_selected_lakes <- all_data2 %>%
+  filter(Suitabl_FP==1)%>%
+  filter()
+
+only_selected_lakes$bird_rank <- rank(-only_selected_lakes$sum_biofoul_risk, ties.method = "first")
+
+plot_data <- only_selected_lakes %>%
+  arrange((sum_biofoul_risk))%>%
+  filter(sum_biofoul_risk!=0)
+
+png("figures/sum_biofouling_solar_overlay.png", height = 12, width = 12, units = "in",res=300)
+
+ggplot()+
+  geom_sf(data = NE_pro)+
+  theme_void()+
+  geom_point(data = plot_data, aes(x = water_lon, y = water_lat, color = sum_biofoul_risk, size = year1_ener))+
+  scale_color_viridis()
+
+dev.off()
+
+ggplot(data = plot_data, aes(x = (year1_ener), y = (sum_biofoul_risk)))+
+  geom_point()
+
+
+
+#### comparisons ####
+
+ggplot(data = plot_data, aes(x = (richness), y = (sum_biofoul_risk)))+
+  geom_point() #high species richness does not necessarily indicate high biofouling risk
 
 
 

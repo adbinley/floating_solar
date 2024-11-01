@@ -187,7 +187,9 @@ for(s in 1:length(species_codes)){
 lake_biodiversity_df <- bind_rows(lake_biodiversity)
 save(lake_biodiversity_df, file = "D:/floating_solar/data_outputs/lake_ave_biodiversity.RData")
 
-#summarise by lake
+load("D:/floating_solar/data_outputs/lake_ave_biodiversity.RData")
+
+#not by species
 lake_bio_sum <- lake_biodiversity_df %>%
   group_by(Water_ID)%>%
   summarise(richness = sum(max>0,na.rm=T),
