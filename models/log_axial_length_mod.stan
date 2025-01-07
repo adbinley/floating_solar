@@ -14,7 +14,7 @@ data {
 // parameters
 parameters {
   
-  real intercept;
+  //real intercept;
   real slope;
   row_vector[n_order] order_intercept;
   real<lower = 0> sigma;
@@ -24,14 +24,14 @@ parameters {
 // The model to be estimated
 model {
   
-  intercept ~ std_normal();
+  //intercept ~ std_normal();
   order_intercept ~ std_normal();
   slope ~ std_normal();
   sigma ~ exponential(1);
   
   for (i in 1:N){
     
-    log_axial_length[i] ~ normal(intercept + order_intercept[order[i]] + slope*log_bodymass[i], sigma);
+    log_axial_length[i] ~ normal(order_intercept[order[i]] + slope*log_bodymass[i], sigma);
   
   }
 
