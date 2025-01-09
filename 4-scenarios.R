@@ -15,9 +15,65 @@ NE <- state_lines %>%
 
 NE_pro <- st_transform(NE, crs = st_crs(4326))
 
+#### species vulnerability ####
+#1.: which species have the highest vulnerability to floating solar based on our equation?
+
+data <- read.csv("data/final_analysis_data.csv")
+
+#first reverse the quantiles for axial length such that high values been smaller axial length and greater risk
+data <- data %>%
+  mutate(vis_acuity_risk = 6 - axiallength_quantile)%>%
+  mutate(VI = ((vis_acuity_risk+wingloading_quantile)/2)*CCS.max*habitat_score)
+
+#what about when weighted by their relative abundance in this region
+# for each species, take the summed relative importance across all lakes identified as appropriate for floating solar
+# add this to the risk part of the assessment: VI = (VA+FM)/2 * CCS + (HS+(exp))/2
+#exposure is also multiplied by percent coverage of solar
+
+lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
+
+#suitable lakes only, and their percent coverage
+lake_coverage <- lakes %>%
+  select(c("Water_ID","FPV_Pct_co","Suitabl_FP"))%>%
+  st_drop_geometry()%>%
+  filter(Suitabl_FP ==1)
+
+exposure_vector <- c()
+
+for(s in 1:length(data$species_code)){
+
+  sp <- data$species_code[s]
+  
+  load(paste0("D:/floating_solar/data_outputs/",sp,"_lake_abd_weight.RData")) #this is sum, mean is also available
+  
+  lake_bird_data1 <- lake_bird_data %>%
+    filter(Water_ID %in% lake_coverage$Water_ID)
+  
+  lake_bird_data2 <- left_join(lake_bird_data1, lake_coverage)
+  
+  #calculating exposure based on max abundance at each waterbody and solar coverage
+  #scale abundance between 1 and 5
+  lake_bird_data2 <- lake_bird_data2 %>%
+    mutate(scaled_importance = ifelse(max != 0,
+                                      scales::rescale(max, to = c(1,5)),
+                                      0)) %>%
+    mutate(exposure = scaled_importance*FPV_Pct_co)
+  
+  sum_exposure <- sum(lake_bird_data2$exposure) #sum of exposure across study range - will be scaled based on other species values
+  
+  exposure_vector <- c(exposure_vector, sum_exposure)
+  
+}
+
+data$exposure <- exposure_vector
+
+data <- data %>%
+  rescale()
+
+na_species <- data$species_code[which(is.na(data$exposure))]
 
 #### richness ####
-#1: overlap of species richness/diversity/importance and solar energy
+#2: overlap of species richness/diversity/importance and solar energy
 
 load("D:/floating_solar/data_outputs/all_importance_data.RData")
 

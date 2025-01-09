@@ -54,14 +54,21 @@ species_codes_round2 <- updated_selection1 %>%
 
 species_data <- species_codes_round2
 
+#coming back to troubleshoot some species with NAs
+na_species <- c("chiswi","chwwid","pecsan","yebcuc", "purmar", "veery",  "bkbcuc", "miskit", "amgplo", "baisan", "bubsan", "hudgod", "pursan", "sabgul", "uplsan",
+"bicthr", "boboli")
+
 #loop through all species selected
-for(s in 1:length(species_data$species_code)){
+# for(s in 1:length(species_data$species_code)){
+
+for(s in 1:length(na_species)){
   
 #for(s in 1:3){ #test loop on a few species first to make sure its working
   
   skip_to_next <- FALSE
   
-  sp <- species_data$species_code[s]
+  #sp <- species_data$species_code[s]
+  sp <- na_species[s]
   
   #trycatch added in case one raster fails to load - won't break loop
   #load raster into R for each species
@@ -77,10 +84,13 @@ for(s in 1:length(species_data$species_code)){
 
   #calculate proportion of total rel abundance that each cell represents
   #replace NAs with 0s
-  bird_data[is.na(bird_data)] <- 0
+  bird_data_cr[is.na(bird_data_cr)] <- 0
   
   #sum of all raster cells in the extent
-  sum <- global(bird_data_cr, "sum", na.rm=T)
+  sum <- global(bird_data_cr, "sum")#, na.rm=T)
+  
+  #don't divide by zero...
+  sum$sum[which(sum$sum ==0)] <- 0.1 #all cell values are zero anyways, so will  give zeros 
   
   #for each week, divide each raster cell by the total amount to get the prop rel abd
   week_list <- list()
@@ -95,17 +105,24 @@ for(s in 1:length(species_data$species_code)){
     if(skip_to_next) {next}
     
     week_list[[i]] <- bird_prop_abd
+
     
   }
   
   species_stack <- rast(week_list)
+  #species_stack <- do.call(c,week_list)
+
   
   #use max to get max across stacks (ie max abd index across weeks)
   max_values <- max(species_stack)
+
   
-  writeRaster(max_values, file = paste0("D:/floating_solar/generated/",sp,"_max_values.tif"))
+  writeRaster(max_values, file = paste0("D:/floating_solar/generated/",sp,"_max_values.tif"), overwrite=TRUE)
 
 }
+
+
+#here - check species above worked ok, then rerun code below and all subsequent code
 
 
 ####summarising by lake####
@@ -161,6 +178,7 @@ for(a in 1:length(complete_codes)){
   lake_bird_data <- zonal(bird_data1, z = lakes_vec_pro, fun = "sum", na.rm=T) 
   #instead of doing this, should probably change NAs to 0s
   #rerun eventually and fix, ignoring for now NOT DONE YET
+  #only matters for mean values???
   lake_bird_data$species_code <- rep(sp, length(lake_bird_data$max))
   lake_bird_data$Water_ID <- lakes$Water_ID
 
@@ -178,7 +196,7 @@ for(s in 1:length(species_codes)){
   sp <- species_codes[s]
 
   #the sum of abd importance for each lake 
-  load(paste0("D:/floating_solar/data_outputs/",sp,"_lake_abd_weight.RData"))
+  load(paste0("D:/floating_solar/data_outputs/",sp,"_lake_abd_weight.RData")) 
 
   lake_biodiversity[[s]] <- lake_bird_data
   
