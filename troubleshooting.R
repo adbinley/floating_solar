@@ -59,9 +59,27 @@ freq(week_list[[46]], value=0)
 
 subset_test <- test[test>0 & test<1]
 
-freq(test)
+freq(test, value=0)
 
 bobo <- lake_biodiversity_df %>%
   filter(species_code == "boboli")
 purmar <- lake_biodiversity_df %>%
   filter(species_code == "purmar")
+chiswi <- lake_biodiversity_df %>%
+  filter(species_code == "chiswi")
+
+#get rid of annoying 1s
+test <- bird_data
+values(test)[values(test)==1]<-0
+plot(test)
+freq(bird_data, value=0)
+
+mat <- as.matrix(bird_data1)
+
+still.na <- lake_biodiversity_df %>%
+  filter(is.na(max))
+unique(still.na$species_code)
+load("D:/floating_solar/data_outputs/lake_ave_biodiversity.RData")
+
+
+test <- rescale(data$exposure, to=c(1,5))
