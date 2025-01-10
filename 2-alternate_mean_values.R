@@ -22,17 +22,17 @@ complete <- list.files(path = "D:/floating_solar/generated/")
 complete_codes <- str_extract(complete,"[^_]+")
 
 #na species who have data but weird results
-na_species <- c("chiswi","chwwid","yebcuc", "purmar", "veery",  "bkbcuc", "miskit", "baisan", "pursan","uplsan",
-                "bicthr", "boboli")
+# na_species <- c("chiswi","chwwid","yebcuc", "purmar", "veery",  "bkbcuc", "miskit", "baisan", "pursan","uplsan",
+#                 "bicthr", "boboli")
 
 rm(sp)
 rm(bird_data)
 
-#for(a in 1:length(complete_codes)){
-for(a in 1:length(na_species)){
+for(a in 1:length(complete_codes)){
+#for(a in 1:length(na_species)){
   
-  #sp <- complete_codes[a]
-  sp <- na_species[a]
+  sp <- complete_codes[a]
+  #sp <- na_species[a]
   
   bird_data <- rast(paste0("D:/floating_solar/generated/",sp,"_max_values.tif"))
   bird_data1 <- bird_data*10000 #transformed to make numbers nicer to deal with

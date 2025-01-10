@@ -55,20 +55,23 @@ species_codes_round2 <- updated_selection1 %>%
 species_data <- species_codes_round2
 
 #coming back to troubleshoot some species with NAs
-na_species <- c("chiswi","chwwid","pecsan","yebcuc", "purmar", "veery",  "bkbcuc", "miskit", "amgplo", "baisan", "bubsan", "hudgod", "pursan", "sabgul", "uplsan",
-"bicthr", "boboli")
+# na_species <- c("chiswi","chwwid","pecsan","yebcuc", "purmar", "veery",  "bkbcuc", "miskit", "amgplo", "baisan", "bubsan", "hudgod", "pursan", "sabgul", "uplsan",
+# "bicthr", "boboli")
 
 #loop through all species selected
-# for(s in 1:length(species_data$species_code)){
+#for(s in 1:length(species_data$species_code)){
 
-for(s in 1:length(na_species)){
+#for(s in 1:length(na_species)){
   
 #for(s in 1:3){ #test loop on a few species first to make sure its working
+
+for(s in 1:length(complete_codes)){
   
   skip_to_next <- FALSE
   
   #sp <- species_data$species_code[s]
-  sp <- na_species[s]
+  #sp <- na_species[s]
+  sp <- complete_codes[s]
   
   #trycatch added in case one raster fails to load - won't break loop
   #load raster into R for each species
@@ -79,15 +82,18 @@ for(s in 1:length(na_species)){
   if(skip_to_next) {next}
 
   #crop to manageable size
-  extent <- ext(-13000000, -4500000, 0, 9000000)
+  #extent still captures entire western hemisphere
+  #necessary so that the importance values are based on entire range at each point in the year
+  extent <- ext(-13000000, -1500000, -5000000, 9000000)
   bird_data_cr <- crop(bird_data, extent)
+  #plot(bird_data_cr[[20]])
 
   #calculate proportion of total rel abundance that each cell represents
   #replace NAs with 0s
   bird_data_cr[is.na(bird_data_cr)] <- 0
   
   #sum of all raster cells in the extent
-  sum <- global(bird_data_cr, "sum")#, na.rm=T)
+  sum <- global(bird_data_cr, "sum", na.rm=T)
   
   #don't divide by zero...
   sum$sum[which(sum$sum ==0)] <- 0.1 #all cell values are zero anyways, so will  give zeros 

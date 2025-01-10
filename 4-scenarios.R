@@ -89,6 +89,9 @@ data <- data %>%
   mutate(VI_2 = ((vis_acuity_risk+wingloading_quantile)/2)*CCS.max*((habitat_score+exposure_scaled)/2))
 
 
+save(data, file = "data_outputs/final_analysis_data.RData")
+
+
 #### richness ####
 #2: overlap of species richness/diversity/importance and solar energy
 
