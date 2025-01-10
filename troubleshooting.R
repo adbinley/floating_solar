@@ -34,3 +34,34 @@ ggplot()+
 
 no_poo <- all_data2 %>%
   filter(sum_biofoul_risk == 0) #same deal
+
+
+#####
+
+sp <- "cangoo"
+sp <- na_species[5]
+
+bird_data <- rast(paste0("D:/big_data/eBird_FAC/2022/",sp,"/weekly/",sp,"_abundance_median_3km_2022.tif"))
+test <- rast(paste0("D:/floating_solar/generated/",sp,"_max_values.tif"))
+test
+plot(test)
+test1 <- test*10000
+
+for(t in 1:52){
+  
+  max <- global(week_list[[t]], fun="max")
+  
+  print(max)
+  
+}
+
+freq(week_list[[46]], value=0)
+
+subset_test <- test[test>0 & test<1]
+
+freq(test)
+
+bobo <- lake_biodiversity_df %>%
+  filter(species_code == "boboli")
+purmar <- lake_biodiversity_df %>%
+  filter(species_code == "purmar")

@@ -21,12 +21,18 @@ lakes_vec_pro <- project(lakes_vec, crs(bird_data))
 complete <- list.files(path = "D:/floating_solar/generated/")
 complete_codes <- str_extract(complete,"[^_]+")
 
+#na species who have data but weird results
+na_species <- c("chiswi","chwwid","yebcuc", "purmar", "veery",  "bkbcuc", "miskit", "baisan", "pursan","uplsan",
+                "bicthr", "boboli")
+
 rm(sp)
 rm(bird_data)
 
-for(a in 1:length(complete_codes)){
+#for(a in 1:length(complete_codes)){
+for(a in 1:length(na_species)){
   
-  sp <- complete_codes[a]
+  #sp <- complete_codes[a]
+  sp <- na_species[a]
   
   bird_data <- rast(paste0("D:/floating_solar/generated/",sp,"_max_values.tif"))
   bird_data1 <- bird_data*10000 #transformed to make numbers nicer to deal with
@@ -51,7 +57,7 @@ for(s in 1:length(species_codes)){
   
   sp <- species_codes[s]
   
-  #the sum of abd importance for each lake 
+  #the mean of abd importance for each lake 
   load(paste0("D:/floating_solar/data_outputs/",sp,"_lake_abd_MEAN_weight.RData"))
   
   mean_lake_biodiversity[[s]] <- lake_bird_data_mean
@@ -59,7 +65,7 @@ for(s in 1:length(species_codes)){
 }
 
 mean_lake_biodiversity_df <- bind_rows(mean_lake_biodiversity)
-save(mean_lake_biodiversity_df, file = "D:/floating_solar/data_outputs/mean_lake_ave_biodiversity.RData")
+save(mean_lake_biodiversity_df, file = "D:/floating_solar/data_outputs/mean_lake_ave_biodiversity_updated.RData")
 
 #summarise by lake
 mean_lake_bio_sum <- mean_lake_biodiversity_df %>%
@@ -82,7 +88,9 @@ only_selected_lakes <- all_data %>%
 #   geom_histogram(binwidth = 10)
 
 #add to other importance and richness dataframe created in 2-summarise_birds_lakes
-load("D:/floating_solar/data_outputs/lake_ave_biodiversity.RData")
+load("D:/floating_solar/data_outputs/lake_ave_biodiversity_updated.RData")
+
+lake_biodiversity_df <- lake_biodiversity_df_updated
 
 lake_bio_sum <- lake_biodiversity_df %>%
   group_by(Water_ID)%>%
@@ -92,7 +100,7 @@ lake_bio_sum <- lake_biodiversity_df %>%
 rm(lake_biodiversity_df)
 
 all_data1 <- left_join(all_data, lake_bio_sum, by = "Water_ID")
-save(all_data1, file = "D:/floating_solar/data_outputs/all_importance_data.RData")
+save(all_data1, file = "D:/floating_solar/data_outputs/all_importance_data_updated.RData")
 
 plot(all_data1$mean_importance,all_data1$sum_importance)
 #strong relationship between the different importance metrics, but with sum outliers

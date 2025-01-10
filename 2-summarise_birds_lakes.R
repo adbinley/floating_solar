@@ -115,6 +115,7 @@ for(s in 1:length(na_species)){
   
   #use max to get max across stacks (ie max abd index across weeks)
   max_values <- max(species_stack)
+  max_raster <- app(species_stack, fun="max")
 
   
   writeRaster(max_values, file = paste0("D:/floating_solar/generated/",sp,"_max_values.tif"), overwrite=TRUE)
@@ -123,28 +124,30 @@ for(s in 1:length(na_species)){
 
 
 #here - check species above worked ok, then rerun code below and all subsequent code
+#for a handful of species, one or two cells were left at one point in the FAC and therefore there are values of 1 for relative importance
+#because they are the only cells "in range"
 
 
 ####summarising by lake####
 
 #load in lake data
-lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
-#plot(st_geometry(lakes[1,]))
-#plot(st_geometry(lakes))
-
-#test on a couple lakes
-lake1 <- lakes[4,]
-lake_buffer <- st_buffer(lake1,5000)
-#plot(st_geometry(lake_buffer))
-#plot(st_geometry(lake1), add=TRUE)
-lakes_vec <- vect(lake_buffer)
-sp <- "amerob"
-bird_data <- rast(paste0("D:/floating_solar/generated/",sp,"_max_values.tif"))
-lakes_vec_pro <- project(lakes_vec, crs(bird_data))
-plot(lakes_vec_pro)#look to check it worked
-plot(bird_data, add=T) #this explodes :/
-#lake_buffer <- st_buffer(lakes, 5000)
-#plot(st_geometry(lake_buffer))
+# lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
+# #plot(st_geometry(lakes[1,]))
+# #plot(st_geometry(lakes))
+# 
+# #test on a couple lakes
+# lake1 <- lakes[4,]
+# lake_buffer <- st_buffer(lake1,5000)
+# #plot(st_geometry(lake_buffer))
+# #plot(st_geometry(lake1), add=TRUE)
+# lakes_vec <- vect(lake_buffer)
+# sp <- "amerob"
+# bird_data <- rast(paste0("D:/floating_solar/generated/",sp,"_max_values.tif"))
+# lakes_vec_pro <- project(lakes_vec, crs(bird_data))
+# plot(lakes_vec_pro)#look to check it worked
+# plot(bird_data, add=T) #this explodes :/
+# #lake_buffer <- st_buffer(lakes, 5000)
+# #plot(st_geometry(lake_buffer))
 
 #actual starting point
 #create buffer for all lakes and project
@@ -165,12 +168,20 @@ lakes_vec_pro <- project(lakes_vec, crs(bird_data))
 complete <- list.files(path = "D:/floating_solar/generated/")
 complete_codes <- str_extract(complete,"[^_]+")
 
+#na species who have data but weird results
+na_species <- c("chiswi","chwwid","yebcuc", "purmar", "veery",  "bkbcuc", "miskit", "baisan", "pursan","uplsan",
+                "bicthr", "boboli")
+
+#sp <- na_species[1]
+
 rm(sp)
 rm(bird_data)
 
-for(a in 1:length(complete_codes)){
+#for(a in 1:length(complete_codes)){
+for(a in 1:length(na_species)){
   
-  sp <- complete_codes[a]
+  #sp <- complete_codes[a]
+  sp <- na_species[a]
 
   bird_data <- rast(paste0("D:/floating_solar/generated/",sp,"_max_values.tif"))
   bird_data1 <- bird_data*10000 #transformed to make numbers nicer to deal with
@@ -202,10 +213,12 @@ for(s in 1:length(species_codes)){
   
 }
 
-lake_biodiversity_df <- bind_rows(lake_biodiversity)
-save(lake_biodiversity_df, file = "D:/floating_solar/data_outputs/lake_ave_biodiversity.RData")
+lake_biodiversity_df_updated <- bind_rows(lake_biodiversity)
+save(lake_biodiversity_df_updated, file = "D:/floating_solar/data_outputs/lake_ave_biodiversity_updated.RData")
 
-load("D:/floating_solar/data_outputs/lake_ave_biodiversity.RData")
+load("D:/floating_solar/data_outputs/lake_ave_biodiversity_updated.RData")
+
+lake_biodiversity_df <- lake_biodiversity_df_updated
 
 #not by species
 lake_bio_sum <- lake_biodiversity_df %>%
