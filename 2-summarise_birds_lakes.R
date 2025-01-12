@@ -47,7 +47,8 @@ updated_selection1 <- updated_selection %>%
 complete <- list.files(path = "D:/floating_solar/generated/")
 complete_codes <- str_extract(complete,"[^_]+")
 #codes that still need to run
-new_codes <- setdiff(updated_selection1$species_code,complete_codes)
+#new_codes <- setdiff(updated_selection1$species_code,complete_codes)
+new_codes <- setdiff(data$species_code,complete_codes)
 
 species_codes_round2 <- updated_selection1 %>%
   filter(species_code %in% new_codes)
@@ -65,17 +66,23 @@ species_data <- species_codes_round2
   
 #for(s in 1:3){ #test loop on a few species first to make sure its working
 
-for(s in 1:length(complete_codes)){
+which(complete_codes=="wilfly")
+
+for(s in 1:length(new_codes)){
   
   skip_to_next <- FALSE
   
   #sp <- species_data$species_code[s]
   #sp <- na_species[s]
-  sp <- complete_codes[s]
+  #sp <- complete_codes[s]
+  sp <- new_codes[s]
   
   #trycatch added in case one raster fails to load - won't break loop
   #load raster into R for each species
-  tryCatch(bird_data <- rast(paste0("D:/big_data/eBird_FAC/2022/",sp,"/weekly/",sp,"_abundance_median_3km_2022.tif")),
+  # tryCatch(bird_data <- rast(paste0("D:/big_data/eBird_FAC/2022/",sp,"/weekly/",sp,"_abundance_median_3km_2022.tif")),
+  #          error = function(e){skip_to_next <<- TRUE})
+  
+  tryCatch(bird_data <- rast(paste0("D:/floating_solar/ebird/2022/",sp,"/weekly/",sp,"_abundance_median_3km_2022.tif")),
            error = function(e){skip_to_next <<- TRUE})
   
   
@@ -121,10 +128,17 @@ for(s in 1:length(complete_codes)){
   
   #use max to get max across stacks (ie max abd index across weeks)
   max_values <- max(species_stack)
-  max_raster <- app(species_stack, fun="max")
+  #max_raster <- app(species_stack, fun="max")
 
   
   writeRaster(max_values, file = paste0("D:/floating_solar/generated/",sp,"_max_values.tif"), overwrite=TRUE)
+  
+  rm(species_stack)
+  rm(week_list)
+  rm(max_values)
+  rm(bird_data)
+  rm(bird_data_cr)
+  rm(bird_prop_abd)
 
 }
 
