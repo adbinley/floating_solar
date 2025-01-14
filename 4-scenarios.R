@@ -23,8 +23,8 @@ data <- read.csv("data/final_analysis_data.csv")
 
 #first reverse the quantiles for axial length such that high values been smaller axial length and greater risk
 data <- data %>%
-  mutate(vis_acuity_risk = 6 - axiallength_quantile)%>%
-  mutate(VI = ((vis_acuity_risk+wingloading_quantile)/2)*CCS.max*habitat_score)
+  mutate(vis_acuity_risk = 6 - axiallength_quantile)#%>%
+  #mutate(VI = ((vis_acuity_risk+wingloading_quantile)/2)*CCS.max*habitat_score)
 
 #what about when weighted by their relative abundance in this region
 # for each species, take the summed relative importance across all lakes identified as appropriate for floating solar
@@ -38,6 +38,8 @@ lake_coverage <- lakes %>%
   select(c("Water_ID","FPV_Pct_co","Suitabl_FP"))%>%
   st_drop_geometry()%>%
   filter(Suitabl_FP ==1)
+
+rm(lakes)
 
 exposure_vector <- c()
 
@@ -53,15 +55,11 @@ for(s in 1:length(data$species_code)){
   lake_bird_data2 <- left_join(lake_bird_data1, lake_coverage)
   
   #calculating exposure based on max abundance at each waterbody and solar coverage
-  #scale abundance between 1 and 5
-  #THIS NEEDS TO CHANGE! final values need to be scaled between 1 and 5, rather than the earlier values
   lake_bird_data2 <- lake_bird_data2 %>%
-    mutate(scaled_importance = ifelse(max != 0,
-                                      scales::rescale(max, to = c(1,5)),
-                                      0)) %>%
-    mutate(exposure = scaled_importance*FPV_Pct_co)
+    #multiply importance at each lake by the proportion of the lake to be covered
+    mutate(exposure = max*FPV_Pct_co)
   
-  sum_exposure <- sum(lake_bird_data2$exposure) #sum of exposure across study range - will be scaled based on other species values
+  sum_exposure <- sum(lake_bird_data2$exposure) #sum of exposure across study range - will eventually be scaled based on other species values
   
   exposure_vector <- c(exposure_vector, sum_exposure)
   
@@ -69,7 +67,13 @@ for(s in 1:length(data$species_code)){
 
 data$exposure <- exposure_vector
 
-na_species <- data$species_code[which(is.na(data$exposure))]
+#scale between 1 and 5, but leave zeros as zeros
+data <- data %>%
+mutate(exposure_scaled = ifelse(exposure != 0,
+                                scales::rescale(exposure, to = c(1,5)),
+                                0))
+
+
 
 data_available <- setdiff(data$species_code,na_species)
 
