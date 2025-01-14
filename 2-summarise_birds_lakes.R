@@ -188,7 +188,7 @@ lakes_vec_pro <- project(lakes_vec, crs(bird_data))
 complete <- list.files(path = "D:/floating_solar/generated/")
 complete_codes <- str_extract(complete,"[^_]+")
 
-which(complete_codes=="fuwduc")
+which(complete_codes=="redcro")
 
 #na species who have data but weird results
 #na_species <- c("chiswi","chwwid","yebcuc", "purmar", "veery",  "bkbcuc", "miskit", "baisan", "pursan","uplsan",
@@ -199,7 +199,7 @@ which(complete_codes=="fuwduc")
 rm(sp)
 rm(bird_data)
 
-for(a in 115:length(complete_codes)){
+for(a in 221:length(complete_codes)){
 #for(a in 1:length(na_species)){
   
   sp <- complete_codes[a]
