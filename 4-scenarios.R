@@ -136,6 +136,63 @@ dev.off()
 
 #do by state? could calculate the rank correlation between biodiversity importance and solar importance and summarise by state
 
+#### VI for each lake ####
+
+load("data_outputs/final_analysis_data.RData")
+
+lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
+
+#suitable lakes only, and their percent coverage
+lake_coverage <- lakes %>%
+  select(c("Water_ID","FPV_Pct_co","Suitabl_FP"))%>%
+  st_drop_geometry()%>%
+  filter(Suitabl_FP ==1)
+
+rm(lakes)
+
+lake_VI_df <- data.frame(Water_ID = lake_bird_data$Water_ID)%>%
+  filter(Water_ID %in% lake_coverage$Water_ID)
+
+which(data$species_code == "gbbgul")
+
+for(s in 46:length(data$species_code)){
+  
+  sp <- data$species_code[s]
+  
+  load(paste0("D:/floating_solar/data_outputs/",sp,"_lake_abd_weight.RData")) #this is sum, mean is also available
+  
+  lake_bird_data1 <- lake_bird_data %>%
+    filter(Water_ID %in% lake_coverage$Water_ID)
+  
+  lake_bird_data2 <- left_join(lake_bird_data1, lake_coverage)
+  
+  #calculating exposure based on max abundance at each waterbody and solar coverage
+  lake_bird_data2 <- lake_bird_data2 %>%
+    #multiply importance at each lake by the proportion of the lake to be covered
+    #note here the scaling is for each species
+    mutate(exposure = max*FPV_Pct_co)%>%
+    mutate(exposure_scaled = ifelse(exposure != 0,
+                                    scales::rescale(exposure, to = c(1,5)),
+                                    0))
+  
+  sp_data <- data %>%
+    filter(species_code == sp)
+  
+  lake_bird_data2$lake_VI = ((sp_data$vis_acuity_risk+sp_data$wingloading_quantile)/2)*sp_data$CCS.max*((sp_data$habitat_score+lake_bird_data2$exposure_scaled)/2)
+  
+  sp_df <- lake_bird_data2 %>%
+    select(c("Water_ID","lake_VI"))
+  
+  colnames(sp_df) <- c("Water_ID",sp)
+  
+  
+  lake_VI_df <- left_join(lake_VI_df,sp_df)
+  
+}
+
+save(lake_VI_df, file="data_outputs/lake_VI_df.RData")
+
+
 #### biofouling ####
 
 #2. look at relationship between the concentration of biofouling species and solar energy
