@@ -24,8 +24,7 @@ data <- read.csv("data/final_analysis_data.csv")
 
 #first reverse the quantiles for axial length such that high values been smaller axial length and greater risk
 data <- data %>%
-  mutate(vis_acuity_risk = 6 - axiallength_quantile)#%>%
-  #mutate(VI = ((vis_acuity_risk+wingloading_quantile)/2)*CCS.max*habitat_score)
+  mutate(vis_acuity_risk = 6 - axiallength_quantile)
 
 #what about when weighted by their relative abundance in this region
 # for each species, take the summed relative importance across all lakes identified as appropriate for floating solar
@@ -81,7 +80,7 @@ data <- data %>%
 
 save(data, file = "data_outputs/final_analysis_data.RData")
 
-
+#### start here ####
 load("data_outputs/final_analysis_data.RData")
 write.csv(data, file = "data_outputs/final_analysis_data.csv")
 
@@ -90,7 +89,7 @@ write.csv(data, file = "data_outputs/final_analysis_data.csv")
 
 load("D:/floating_solar/data_outputs/all_importance_data_updated.RData") 
 
-only_selected_lakes <- all_data2 %>%
+only_selected_lakes <- all_data1 %>%
   filter(Suitabl_FP==1)%>%
   filter()
 
@@ -141,7 +140,8 @@ dev.off()
 
 #2. look at relationship between the concentration of biofouling species and solar energy
 
-load("D:/floating_solar/data_outputs/all_importance_data.RData")
+#load("D:/floating_solar/data_outputs/all_importance_data.RData")
+
 
 only_selected_lakes <- all_data2 %>%
   filter(Suitabl_FP==1)%>%
