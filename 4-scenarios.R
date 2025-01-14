@@ -54,6 +54,7 @@ for(s in 1:length(data$species_code)){
   
   #calculating exposure based on max abundance at each waterbody and solar coverage
   #scale abundance between 1 and 5
+  #THIS NEEDS TO CHANGE! final values need to be scaled between 1 and 5, rather than the earlier values
   lake_bird_data2 <- lake_bird_data2 %>%
     mutate(scaled_importance = ifelse(max != 0,
                                       scales::rescale(max, to = c(1,5)),
