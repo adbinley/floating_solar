@@ -19,6 +19,7 @@ NE_pro <- st_transform(NE, crs = st_crs(4326))
 #### species vulnerability ####
 #1.: which species have the highest vulnerability to floating solar based on our equation?
 
+#this is done, skip to bottom now for final data
 data <- read.csv("data/final_analysis_data.csv")
 
 #first reverse the quantiles for axial length such that high values been smaller axial length and greater risk
@@ -80,6 +81,9 @@ data <- data %>%
 
 save(data, file = "data_outputs/final_analysis_data.RData")
 
+
+load("data_outputs/final_analysis_data.RData")
+write.csv(data, file = "data_outputs/final_analysis_data.csv")
 
 #### richness ####
 #2: overlap of species richness/diversity/importance and solar energy
