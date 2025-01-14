@@ -141,7 +141,7 @@ dev.off()
 #2. look at relationship between the concentration of biofouling species and solar energy
 
 #load("D:/floating_solar/data_outputs/all_importance_data.RData")
-
+load("data_outputs/final_biofouling_data.RData")
 
 only_selected_lakes <- all_data2 %>%
   filter(Suitabl_FP==1)%>%
