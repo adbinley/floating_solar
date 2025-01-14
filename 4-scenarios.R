@@ -73,25 +73,9 @@ mutate(exposure_scaled = ifelse(exposure != 0,
                                 scales::rescale(exposure, to = c(1,5)),
                                 0))
 
-
-
-data_available <- setdiff(data$species_code,na_species)
-
-#removing 5 species with no data that somehow got this far
-data <- data %>%
-  filter(species_code %in% data_available)
-
-sum(data$exposure==0)
-
-#rescaling data but ensuring that all species that were not exposed to the lakes are still 0
-#this will zero their risk based on the equation (for this region anyways)
-data <- data %>%
-  mutate(exposure_scaled = ifelse(exposure == 0,0,
-                                  scales::rescale(exposure, to=c(1,5))))
-
 #calculate new VI that accounts for exposure
 data <- data %>%
-  mutate(VI_2 = ((vis_acuity_risk+wingloading_quantile)/2)*CCS.max*((habitat_score+exposure_scaled)/2))
+  mutate(VI = ((vis_acuity_risk+wingloading_quantile)/2)*CCS.max*((habitat_score+exposure_scaled)/2))
 
 
 save(data, file = "data_outputs/final_analysis_data.RData")
@@ -100,7 +84,7 @@ save(data, file = "data_outputs/final_analysis_data.RData")
 #### richness ####
 #2: overlap of species richness/diversity/importance and solar energy
 
-load("D:/floating_solar/data_outputs/all_importance_data.RData") #use "updated" file now
+load("D:/floating_solar/data_outputs/all_importance_data_updated.RData") 
 
 only_selected_lakes <- all_data2 %>%
   filter(Suitabl_FP==1)%>%

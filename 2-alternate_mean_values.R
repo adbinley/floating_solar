@@ -66,6 +66,7 @@ for(s in 1:length(species_codes)){
 
 mean_lake_biodiversity_df <- bind_rows(mean_lake_biodiversity)
 save(mean_lake_biodiversity_df, file = "D:/floating_solar/data_outputs/mean_lake_ave_biodiversity_updated.RData")
+load("D:/floating_solar/data_outputs/mean_lake_ave_biodiversity_updated.RData")
 
 #summarise by lake
 mean_lake_bio_sum <- mean_lake_biodiversity_df %>%
