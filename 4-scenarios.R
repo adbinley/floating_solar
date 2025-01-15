@@ -178,6 +178,7 @@ for(s in 46:length(data$species_code)){
   sp_data <- data %>%
     filter(species_code == sp)
   
+  #calculating the VI for each species at each lake, using the specific exposure values for each lake
   lake_bird_data2$lake_VI = ((sp_data$vis_acuity_risk+sp_data$wingloading_quantile)/2)*sp_data$CCS.max*((sp_data$habitat_score+lake_bird_data2$exposure_scaled)/2)
   
   sp_df <- lake_bird_data2 %>%
@@ -191,7 +192,9 @@ for(s in 46:length(data$species_code)){
 }
 
 save(lake_VI_df, file="data_outputs/lake_VI_df.RData")
+load("data_outputs/lake_VI_df.RData")
 
+lake_VI_df$mean_VI = rowMeans(lake_VI_df[,2:ncol(lake_VI_df)])
 
 #### biofouling ####
 
