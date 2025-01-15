@@ -92,8 +92,7 @@ data$VI = ((data$wingloading_quantile + data$vis_acuity_risk)/2) * data$CCS_quan
 save(data, file = "data_outputs/final_analysis_data.RData")
 write.csv(data, file = "data_outputs/final_analysis_data.csv")
 
-#### start here ####
-load("data_outputs/final_analysis_data.RData")
+
 
 #### richness ####
 #2: overlap of species richness/diversity/importance and solar energy
@@ -144,6 +143,7 @@ ggplot()+
   scale_color_viridis()
 
 dev.off()
+
 
 #do by state? could calculate the rank correlation between biodiversity importance and solar importance and summarise by state
 
@@ -215,6 +215,57 @@ lake_risk_df <- lake_VI_df %>%
   select(c("Water_ID","mean_risk","sum_risk"))
 
 save(lake_risk_df, file = "data_outputs/lake_risk_df.RData")
+
+#### start here ####
+load("data_outputs/lake_risk_df.RData")
+
+load("D:/floating_solar/data_outputs/all_importance_data_updated.RData") 
+
+only_selected_lakes <- all_data1 %>%
+  filter(Suitabl_FP==1)%>%
+  filter()
+
+all_data2 <- left_join(only_selected_lakes,lake_risk_df)
+
+all_data2$bird_rank <- rank(-all_data2$mean_risk, ties.method = "first")
+all_data2$energy_scaled <- scale(all_data2$year1_ener)
+
+plot_data <- all_data2 %>%
+  arrange((mean_risk))
+
+png("figures/risk_solar_overlay.png", height = 12, width = 12, units = "in",res=300)
+
+ggplot()+
+  geom_sf(data = NE_pro)+
+  theme_void()+
+  geom_point(data = plot_data, aes(x = water_lon, y = water_lat, color = mean_risk, size = year1_ener))+
+  scale_color_viridis()
+
+dev.off()
+
+
+ggplot(data = plot_data, aes(x = energy_scaled, y = mean_risk)) +
+  geom_point()
+
+png("figures/mean_importance_solar_overlay.png", height = 12, width = 12, units = "in",res=300)
+
+ggplot()+
+  geom_sf(data = NE_pro)+
+  theme_void()+
+  geom_point(data = plot_data, aes(x = water_lon, y = water_lat, color = mean_importance, size = year1_ener))+
+  scale_color_viridis()
+
+dev.off()
+
+png("figures/sum_importance_solar_overlay.png", height = 12, width = 12, units = "in",res=300)
+
+ggplot()+
+  geom_sf(data = NE_pro)+
+  theme_void()+
+  geom_point(data = plot_data, aes(x = water_lon, y = water_lat, color = sum_importance, size = year1_ener))+
+  scale_color_viridis()
+
+dev.off()
 
 #### biofouling ####
 
