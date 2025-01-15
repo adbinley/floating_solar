@@ -26,10 +26,8 @@ data <- read.csv("data/final_analysis_data.csv")
 data <- data %>%
   mutate(vis_acuity_risk = 6 - axiallength_quantile)
 
-#what about when weighted by their relative abundance in this region
-# for each species, take the summed relative importance across all lakes identified as appropriate for floating solar
-# add this to the risk part of the assessment: VI = (VA+FM)/2 * CCS + (HS+(exp))/2
-#exposure is also multiplied by percent coverage of solar
+#VI itself is not measured using exposure, that comes in later
+#VI = (VA+FM)/2 * CCS * HS
 
 lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
 
@@ -41,6 +39,7 @@ lake_coverage <- lakes %>%
 
 rm(lakes)
 
+#calculate exposure to FVP
 exposure_vector <- c()
 
 for(s in 1:length(data$species_code)){
@@ -54,13 +53,13 @@ for(s in 1:length(data$species_code)){
   
   lake_bird_data2 <- left_join(lake_bird_data1, lake_coverage)
   
-  #calculating exposure based on max abundance at each waterbody and solar coverage
+  # #calculating exposure based on max abundance at each waterbody and solar coverage
   lake_bird_data2 <- lake_bird_data2 %>%
     #multiply importance at each lake by the proportion of the lake to be covered
     mutate(exposure = max*FPV_Pct_co)
   
   sum_exposure <- sum(lake_bird_data2$exposure) #sum of exposure across study range - will eventually be scaled based on other species values
-  
+
   exposure_vector <- c(exposure_vector, sum_exposure)
   
 }
@@ -68,21 +67,33 @@ for(s in 1:length(data$species_code)){
 data$exposure <- exposure_vector
 
 #scale between 1 and 5, but leave zeros as zeros
-data <- data %>%
-mutate(exposure_scaled = ifelse(exposure != 0,
-                                scales::rescale(exposure, to = c(1,5)),
-                                0))
+# data <- data %>%
+# mutate(exposure_scaled = ifelse(exposure != 0,
+#                                 scales::rescale(exposure, to = c(1,5)),
+#                                 0))
 
-#calculate new VI that accounts for exposure
+#new - scaling exposure between 0 and 1
 data <- data %>%
-  mutate(VI = ((vis_acuity_risk+wingloading_quantile)/2)*CCS.max*((habitat_score+exposure_scaled)/2))
+mutate(exposure_scaled_2 = scales::rescale(exposure, to = c(0,1)))
+
+data$risk <- data$exposure_scaled_2*data$VI
+
+# #calculate new VI that accounts for exposure
+# data <- data %>%
+#   mutate(VI = ((vis_acuity_risk+wingloading_quantile)/2)*CCS.max*((habitat_score+exposure_scaled)/2))
+#VI will now be calculated without adding exposure
+#exposure added later
+
+#reverting to original calculation of VI
+#does not account for exposure yet
+data$VI = ((data$wingloading_quantile + data$vis_acuity_risk)/2) * data$CCS_quantile * data$habitat_score
 
 
 save(data, file = "data_outputs/final_analysis_data.RData")
+write.csv(data, file = "data_outputs/final_analysis_data.csv")
 
 #### start here ####
 load("data_outputs/final_analysis_data.RData")
-write.csv(data, file = "data_outputs/final_analysis_data.csv")
 
 #### richness ####
 #2: overlap of species richness/diversity/importance and solar energy
@@ -153,9 +164,9 @@ rm(lakes)
 lake_VI_df <- data.frame(Water_ID = lake_bird_data$Water_ID)%>%
   filter(Water_ID %in% lake_coverage$Water_ID)
 
-which(data$species_code == "gbbgul")
+#which(data$species_code == "gbbgul")
 
-for(s in 46:length(data$species_code)){
+for(s in 1:length(data$species_code)){
   
   sp <- data$species_code[s]
   
@@ -167,22 +178,25 @@ for(s in 46:length(data$species_code)){
   lake_bird_data2 <- left_join(lake_bird_data1, lake_coverage)
   
   #calculating exposure based on max abundance at each waterbody and solar coverage
+  #this gives us a scaled value that represents the range of exposures for each species
   lake_bird_data2 <- lake_bird_data2 %>%
     #multiply importance at each lake by the proportion of the lake to be covered
     #note here the scaling is for each species
     mutate(exposure = max*FPV_Pct_co)%>%
-    mutate(exposure_scaled = ifelse(exposure != 0,
-                                    scales::rescale(exposure, to = c(1,5)),
-                                    0))
+    mutate(exposure_scaled_2 = scales::rescale(exposure, to = c(0,1)))
+    # mutate(exposure_scaled = ifelse(exposure != 0,
+    #                                 scales::rescale(exposure, to = c(1,5)),
+    #                                 0))
   
   sp_data <- data %>%
     filter(species_code == sp)
   
   #calculating the VI for each species at each lake, using the specific exposure values for each lake
-  lake_bird_data2$lake_VI = ((sp_data$vis_acuity_risk+sp_data$wingloading_quantile)/2)*sp_data$CCS.max*((sp_data$habitat_score+lake_bird_data2$exposure_scaled)/2)
+  #lake_bird_data2$lake_VI = ((sp_data$vis_acuity_risk+sp_data$wingloading_quantile)/2)*sp_data$CCS.max*((sp_data$habitat_score+lake_bird_data2$exposure_scaled)/2)
+  lake_bird_data2$risk = sp_data$VI * lake_bird_data2$exposure_scaled_2
   
   sp_df <- lake_bird_data2 %>%
-    select(c("Water_ID","lake_VI"))
+    select(c("Water_ID","risk"))
   
   colnames(sp_df) <- c("Water_ID",sp)
   
@@ -194,7 +208,13 @@ for(s in 46:length(data$species_code)){
 save(lake_VI_df, file="data_outputs/lake_VI_df.RData")
 load("data_outputs/lake_VI_df.RData")
 
-lake_VI_df$mean_VI = rowMeans(lake_VI_df[,2:ncol(lake_VI_df)])
+lake_VI_df$mean_risk = rowMeans(lake_VI_df[,2:ncol(lake_VI_df)])
+lake_VI_df$sum_risk = rowSums(lake_VI_df[,2:ncol(lake_VI_df)])
+
+lake_risk_df <- lake_VI_df %>%
+  select(c("Water_ID","mean_risk","sum_risk"))
+
+save(lake_risk_df, file = "data_outputs/lake_risk_df.RData")
 
 #### biofouling ####
 
