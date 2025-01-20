@@ -7,6 +7,7 @@ library(viridis)
 
 #load in lake data
 lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
+lakes <- read_sf("C:/Users/allis/OneDrive/Post-doc/big_data/floating_solar/Northeast_NHD_Alison")
 #take a look
 plot(st_geometry(lakes[1,]))
 plot(st_geometry(lakes))
