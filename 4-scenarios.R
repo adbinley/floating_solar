@@ -314,12 +314,13 @@ library(prioritizr)
 
 #load("C:/Users/allis/OneDrive/Post-doc/floating_solar/floating_solar/data_outputs/final_analysis_data.RData")
 #lakes <- read_sf("C:/Users/allis/OneDrive/Post-doc/big_data/floating_solar/Northeast_NHD_Alison")
-load("C:/Users/allis/OneDrive/Post-doc/floating_solar/floating_solar/data_outputs/lake_risk_df.RData")
+load("data_outputs/lake_risk_df.RData")
 
 lakes1 <- lakes %>%
   filter(Suitabl_FP==1)
 rm(lakes)
 save(lakes1, file="data/suitable_lakes.RData")
+
 load("data/suitable_lakes.RData")
 
 #maximizing energy production with no constraints
@@ -327,6 +328,26 @@ load("data/suitable_lakes.RData")
 #using original dataset, and including the hectares of FPV as the "cost"
 p_max_energy <- prioritizr::problem(x=lakes1, features="year1_ener", cost_column = "fpv_ha")%>%
   add_relative_targets(1)%>% #aiming to maximize energy production
-  #add_min_shortfall_objective()
+  add_min_shortfall_objective(budget = 26000)%>% #"budget" of max FVP available, approx. 1/5 of total climate crisis coverage
+  add_binary_decisions()%>%
+  add_default_solver(gap=0, verbose=F)
+
+print(p_max_energy)
+
+s_max_energy <- solve(p_max_energy, force = T)
+sum(s_max_energy$solution_1) #6451 of the total 16620 suitable lakes were selected
+
+selection_max_energy <- s_max_energy %>%
+  filter(solution_1==1)
+sum(selection_max_energy$year1_ener)#generating 33587.63 units energy
+
+
+#maximizing energy production with avian biodiversity constraint
+
+lakes2 <- left_join(lakes1,lake_risk_df)
+
+p_min_birds <- prioritizr::problem(x=lakes2, features=c("year1_ener","mean_risk"), cost_column = "fpv_ha")%>%
+  add_relative_targets(1)%>% #aiming to maximize energy production
+  add_min_shortfall_objective(budget = 26000)%>% #"budget" of max FVP available, approx. 1/5 of total climate crisis coverage
   add_binary_decisions()%>%
   add_default_solver(gap=0, verbose=F)
