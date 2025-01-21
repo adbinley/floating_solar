@@ -306,3 +306,26 @@ ggplot(data = plot_data, aes(x = (richness), y = (sum_biofoul_risk)))+
 
 
 
+
+# energy scenarios --------------------------------------------------------
+library(sf)
+library(tidyverse)
+library(prioritizr)
+
+load("C:/Users/allis/OneDrive/Post-doc/floating_solar/floating_solar/data_outputs/final_analysis_data.RData")
+lakes <- read_sf("C:/Users/allis/OneDrive/Post-doc/big_data/floating_solar/Northeast_NHD_Alison")
+load("C:/Users/allis/OneDrive/Post-doc/floating_solar/floating_solar/data_outputs/lake_risk_df.RData")
+
+lakes1 <- lakes %>%
+  filter(Suitabl_FP==1)
+rm(lakes)
+save(lakes1, file="data/suitable_lakes.RData")
+
+#maximizing energy production with no constraints
+
+#using original dataset, and including the hectares of FPV as the "cost"
+p_max_energy <- prioritizr::problem(x=lakes1, features="year1_ener", cost_column = "fpv_ha")%>%
+  add_relative_targets(1)%>% #aiming to maximize energy production
+  #add_min_shortfall_objective()
+  add_binary_decisions()%>%
+  add_default_solver(gap=0, verbose=F)
