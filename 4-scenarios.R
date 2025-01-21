@@ -312,14 +312,15 @@ library(sf)
 library(tidyverse)
 library(prioritizr)
 
-load("C:/Users/allis/OneDrive/Post-doc/floating_solar/floating_solar/data_outputs/final_analysis_data.RData")
-lakes <- read_sf("C:/Users/allis/OneDrive/Post-doc/big_data/floating_solar/Northeast_NHD_Alison")
+#load("C:/Users/allis/OneDrive/Post-doc/floating_solar/floating_solar/data_outputs/final_analysis_data.RData")
+#lakes <- read_sf("C:/Users/allis/OneDrive/Post-doc/big_data/floating_solar/Northeast_NHD_Alison")
 load("C:/Users/allis/OneDrive/Post-doc/floating_solar/floating_solar/data_outputs/lake_risk_df.RData")
 
 lakes1 <- lakes %>%
   filter(Suitabl_FP==1)
 rm(lakes)
 save(lakes1, file="data/suitable_lakes.RData")
+load("data/suitable_lakes.RData")
 
 #maximizing energy production with no constraints
 
