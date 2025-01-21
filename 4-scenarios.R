@@ -345,9 +345,39 @@ sum(selection_max_energy$year1_ener)#generating 33587.63 units energy
 #maximizing energy production with avian biodiversity constraint
 
 lakes2 <- left_join(lakes1,lake_risk_df)
+lakes2$mean_risk_scaled <- scale(lakes2$mean_risk)[,1]
+lakes2$energy_scaled <- scale(lakes2$year1_ener)[,1]
 
-p_min_birds <- prioritizr::problem(x=lakes2, features=c("year1_ener","mean_risk"), cost_column = "fpv_ha")%>%
+penalty_data <- lakes2 %>%
+  select("Water_ID","Climate_Cr","Biodiversi","Social_B_1","mean_risk","year1_ener")%>%
+  st_drop_geometry()
+
+
+p_min_birds <- prioritizr::problem(x=lakes2, features ="year1_ener", cost_column = "fpv_ha")%>%
   add_relative_targets(1)%>% #aiming to maximize energy production
   add_min_shortfall_objective(budget = 26000)%>% #"budget" of max FVP available, approx. 1/5 of total climate crisis coverage
+  add_linear_penalties(penalty = 1, data = "mean_risk")%>% #(penalty="mean_risk", data=penalty_data)%>%
   add_binary_decisions()%>%
   add_default_solver(gap=0, verbose=F)
+
+print(p_min_birds)
+
+s_min_birds <- solve(p_min_birds, force = T)
+
+s_min_birds$map_1 <- case_when(
+  s_min_birds$solution_1 > 0.5 ~ "priority",
+  TRUE ~ "other"
+)
+
+# plot map of prioritization
+plot(
+  s_min_birds[, "map_1"], pal = c("grey90","purple"),
+  main = NULL, key.pos = 1
+)
+
+#different way of looking at it
+s_min_birds$solution_1 <- as.factor(s_min_birds$solution_1)
+
+ggplot(s_min_birds, aes(x=mean_risk,y=log(year1_ener), col=solution_1))+
+  geom_point()+
+  theme_classic()

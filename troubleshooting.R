@@ -83,3 +83,5 @@ load("D:/floating_solar/data_outputs/lake_ave_biodiversity.RData")
 
 
 test <- rescale(data$exposure, to=c(1,5))
+
+tas_pu <- prioritizr::get_tas_pu()
