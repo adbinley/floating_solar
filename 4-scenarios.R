@@ -311,6 +311,7 @@ ggplot(data = plot_data, aes(x = (richness), y = (sum_biofoul_risk)))+
 library(sf)
 library(tidyverse)
 library(prioritizr)
+library(tmap)
 
 
 
@@ -319,6 +320,7 @@ library(prioritizr)
 #second, starting with the lake that minimizes overall biodiversity risk - plot energy per unit cost
 load("data_outputs/lake_risk_df.RData")
 load("data/suitable_lakes.RData")
+
 
 energy_data <- left_join(lakes1,lake_risk_df)
 
@@ -417,9 +419,31 @@ energy_data$new_precaution <- ifelse(energy_data$Social_B_1 ==1 & energy_data$Bi
                                                    ifelse(energy_data$Social_B_1 + energy_data$Biodiversi == 0 & energy_data$avian_scenario ==1, "birds_only","none"))))
 #look
 scenarios <- energy_data %>%
-  select(c("Water_ID","Social_B_1","Biodiversi","avian_scenario","new_precaution"))
+  select(c("Water_ID","Social_B_1","Biodiversi","avian_scenario","new_precaution"))%>%
+  st_drop_geometry()
 
-#try plot now
+lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
+lakes1 <- lakes %>%
+  filter(Suitabl_FP ==1)
+
+scenarios_sf <- left_join(lakes1,scenarios)
+
+NE_pro1 <- st_transform(NE, st_crs(scenarios_sf))
+
+png("figures/all_scenarios1.png", height = 10, width = 10, units="in", res = 300)
+
+plot(st_geometry(NE_pro1))
+plot(scenarios_sf[,"new_precaution"], border=NA, pal = c("blue","orange","green","yellow","black"), main=NULL, add=T)
+
+dev.off()
+
+# plot map of prioritization
+plot(
+  s_min_birds[, "map_1"], pal = c("grey90","purple"),
+  main = NULL, key.pos = 1
+)
+
+#bar chart or sexier equivalent? probably shows data better
 
 #how much do the avian and TNC scenarios overlap?
 
@@ -429,14 +453,15 @@ scenarios <- energy_data %>%
 
 #load("C:/Users/allis/OneDrive/Post-doc/floating_solar/floating_solar/data_outputs/final_analysis_data.RData")
 #lakes <- read_sf("C:/Users/allis/OneDrive/Post-doc/big_data/floating_solar/Northeast_NHD_Alison")
-load("data_outputs/lake_risk_df.RData")
-
+#lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
+# load("data_outputs/lake_risk_df.RData")
+# 
 # lakes1 <- lakes %>%
 #   filter(Suitabl_FP==1)
 # rm(lakes)
-# save(lakes1, file="data/suitable_lakes.RData")
+# st_write(lakes1, dsn ="data/suitable_lakes.shp")
 
-load("data/suitable_lakes.RData")
+#load("data/suitable_lakes.RData")
 
 #maximizing energy production with no constraints
 
