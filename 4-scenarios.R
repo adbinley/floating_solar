@@ -312,14 +312,129 @@ library(sf)
 library(tidyverse)
 library(prioritizr)
 
+
+
+#simple approach where lakes are selected based on two criteria:
+#first, starting with the lake that has the best energy/cost ratio - plot energy per unit cost
+#second, starting with the lake that minimizes overall biodiversity risk - plot energy per unit cost
+load("data_outputs/lake_risk_df.RData")
+load("data/suitable_lakes.RData")
+
+energy_data <- left_join(lakes1,lake_risk_df)
+
+energy_data <- energy_data %>%
+  mutate(energy_cost_ratio = year1_ener/fpv_ha)%>%
+  arrange(desc(energy_cost_ratio))
+
+energy_data1 <- data.frame(no_lakes_selected = 1,energy_total = energy_data[1,]$year1_ener, cost = energy_data[1,]$fpv_ha)
+
+no_lakes_selected = 1
+
+for(i in 1:length(energy_data$Water_ID)){
+  
+  no_lakes_selected <- no_lakes_selected+1
+  
+  lake_sel <- energy_data[1:no_lakes_selected,]
+  
+  energy_total <- sum(lake_sel$year1_ener)
+  
+  cost <- sum(lake_sel$fpv_ha)
+  
+  df <- data.frame(no_lakes_selected = no_lakes_selected, energy_total = energy_total, cost = cost)
+  
+  energy_data1 <- rbind(energy_data1,df)
+  
+  
+}
+
+energy_data1 <- energy_data1[-16621,]
+  
+save(energy_data1, file = "data_outputs/selected_lakes_energy_priority.RData")
+
+energy_data1 <- energy_data %>%
+  arrange(desc(energy_cost_ratio)) #arrange with highest energy/cost ratio first
+
+energy_data1$no_lakes_selected <- 1:length(energy_data1$Water_ID)
+energy_data1$energy_total <- cumsum(energy_data1$year1_ener)
+energy_data1$cost <- cumsum(energy_data1$fpv_ha)
+energy_data1$cumulative_risk <- cumsum(energy_data1$sum_risk)
+
+#this approach is a million times faster than above
+
+bio_data <- energy_data %>%
+  arrange(sum_risk)
+
+bio_data$no_lakes_selected = 1:length(bio_data$Water_ID)
+bio_data$energy_total = cumsum(bio_data$year1_ener)
+bio_data$cost = cumsum(bio_data$fpv_ha)
+bio_data$cumulative_risk <- cumsum(bio_data$sum_risk)
+
+energy_data1$scenario <- rep("energy_priority",length(energy_data1$no_lakes_selected))
+
+bio_data$scenario <- rep("avian_priority",length(bio_data$Water_ID))
+
+scen_data <- rbind(energy_data1,bio_data)
+
+png("figures/2_scenario_energy_total.png", height = 10, width = 10, units="in", res = 300)
+
+ggplot(scen_data, aes(x=no_lakes_selected,y=energy_total, col=scenario))+
+  geom_line()+
+  theme_classic(base_size = 22)
+
+dev.off()
+
+
+difference_energy_production <- scen_data$energy_total[scen_data$scenario=="energy_priority"] - scen_data$energy_total[scen_data$scenario=="avian_priority"]
+max(difference_energy_production) #23711.21
+
+
+png("figures/2_scenario_cum_risk.png", height = 10, width = 10, units="in", res = 300)
+
+ggplot(scen_data, aes(x=no_lakes_selected,y=cumulative_risk, col=scenario))+
+  geom_line()+
+  theme_classic(base_size = 22)
+
+dev.off()
+
+
+#most basic approach - removing priority avian biodiversity lakes from the analysis
+
+sum(lakes1$Climate_Cr)#16620
+sum(lakes1$Social_B_1)#14318, 2302 lakes removed
+sum(lakes1$Biodiversi)#8777, 7843 lakes removed
+sum(lakes1$Precaution)#7477, 9143 lakes removed
+
+mean(energy_data$mean_risk)
+
+energy_data$avian_scenario <- ifelse(energy_data$sum_risk > median(energy_data$sum_risk), 0,1)
+sum(energy_data$avian_scenario)#8310 lakes removed
+
+#which lakes are selected based on all three criteria?
+#which lakes meet the other two criteria, but not the avian biodiversity?
+energy_data$new_precaution <- ifelse(energy_data$Social_B_1 ==1 & energy_data$Biodiversi==1 & energy_data$avian_scenario ==1,"all",
+                                     ifelse(energy_data$Social_B_1 + energy_data$Biodiversi ==1 & energy_data$avian_scenario ==1, "birds +",
+                                            ifelse(energy_data$Social_B_1 + energy_data$Biodiversi >=1 & energy_data$avian_scenario ==0,"non-bird value",
+                                                   ifelse(energy_data$Social_B_1 + energy_data$Biodiversi == 0 & energy_data$avian_scenario ==1, "birds_only","none"))))
+#look
+scenarios <- energy_data %>%
+  select(c("Water_ID","Social_B_1","Biodiversi","avian_scenario","new_precaution"))
+
+#try plot now
+
+#how much do the avian and TNC scenarios overlap?
+
+
+
+
+
 #load("C:/Users/allis/OneDrive/Post-doc/floating_solar/floating_solar/data_outputs/final_analysis_data.RData")
 #lakes <- read_sf("C:/Users/allis/OneDrive/Post-doc/big_data/floating_solar/Northeast_NHD_Alison")
 load("data_outputs/lake_risk_df.RData")
 
-lakes1 <- lakes %>%
-  filter(Suitabl_FP==1)
-rm(lakes)
-save(lakes1, file="data/suitable_lakes.RData")
+# lakes1 <- lakes %>%
+#   filter(Suitabl_FP==1)
+# rm(lakes)
+# save(lakes1, file="data/suitable_lakes.RData")
 
 load("data/suitable_lakes.RData")
 
