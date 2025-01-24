@@ -324,37 +324,9 @@ load("data/suitable_lakes.RData")
 
 energy_data <- left_join(lakes1,lake_risk_df)
 
-energy_data <- energy_data %>%
+energy_data1 <- energy_data %>%
   mutate(energy_cost_ratio = year1_ener/fpv_ha)%>%
   arrange(desc(energy_cost_ratio))
-
-energy_data1 <- data.frame(no_lakes_selected = 1,energy_total = energy_data[1,]$year1_ener, cost = energy_data[1,]$fpv_ha)
-
-no_lakes_selected = 1
-
-for(i in 1:length(energy_data$Water_ID)){
-  
-  no_lakes_selected <- no_lakes_selected+1
-  
-  lake_sel <- energy_data[1:no_lakes_selected,]
-  
-  energy_total <- sum(lake_sel$year1_ener)
-  
-  cost <- sum(lake_sel$fpv_ha)
-  
-  df <- data.frame(no_lakes_selected = no_lakes_selected, energy_total = energy_total, cost = cost)
-  
-  energy_data1 <- rbind(energy_data1,df)
-  
-  
-}
-
-energy_data1 <- energy_data1[-16621,]
-  
-save(energy_data1, file = "data_outputs/selected_lakes_energy_priority.RData")
-
-energy_data1 <- energy_data %>%
-  arrange(desc(energy_cost_ratio)) #arrange with highest energy/cost ratio first
 
 energy_data1$no_lakes_selected <- 1:length(energy_data1$Water_ID)
 energy_data1$energy_total <- cumsum(energy_data1$year1_ener)
@@ -417,6 +389,10 @@ energy_data$new_precaution <- ifelse(energy_data$Social_B_1 ==1 & energy_data$Bi
                                      ifelse(energy_data$Social_B_1 + energy_data$Biodiversi ==1 & energy_data$avian_scenario ==1, "birds +",
                                             ifelse(energy_data$Social_B_1 + energy_data$Biodiversi >=1 & energy_data$avian_scenario ==0,"non-bird value",
                                                    ifelse(energy_data$Social_B_1 + energy_data$Biodiversi == 0 & energy_data$avian_scenario ==1, "birds_only","none"))))
+
+save(energy_data, file = "data_outputs/energy_scenario_data.RData")
+load("data_outputs/energy_scenario_data.RData")
+
 #look
 scenarios <- energy_data %>%
   select(c("Water_ID","Social_B_1","Biodiversi","avian_scenario","new_precaution"))%>%
@@ -437,19 +413,36 @@ plot(scenarios_sf[,"new_precaution"], border=NA, pal = c("blue","orange","green"
 
 dev.off()
 
-# plot map of prioritization
-plot(
-  s_min_birds[, "map_1"], pal = c("grey90","purple"),
-  main = NULL, key.pos = 1
-)
 
 #bar chart or sexier equivalent? probably shows data better
+#include energy produced in each of these combinations
 
-#how much do the avian and TNC scenarios overlap?
+# scenario_comp <- energy_data %>%
+#   select(c("Water_ID","Social_B_1","Biodiversi","avian_scenario","new_precaution"))
 
+plot_data <- energy_data %>%
+  st_drop_geometry()%>%
+  group_by(new_precaution)%>%
+  summarise(total_energy = sum(year1_ener))
 
+plot_data$new_precaution <- factor(plot_data$new_precaution, levels = c("none","non-bird value","birds +","birds_only","all"))
 
+#total energy produced in each scenario
+ggplot(plot_data, aes(x=new_precaution, y=total_energy))+
+  geom_bar(stat="identity")+
+  theme_classic()
 
+#energy production tradeoff for each scenario
+plot_data$energy_deficit <- plot_data$total_energy-sum(energy_data$year1_ener)
+plot_data$new_precaution <- factor(plot_data$new_precaution, levels = c("all","birds_only","birds +","non-bird value","none"))
+
+png("figures/energy_deficit_scenarios.png", height = 10, width = 10, units="in", res = 300)
+
+ggplot(plot_data, aes(x=new_precaution, y=energy_deficit))+
+  geom_bar(fill=c("#420D09","#8D021F","#B80F0A","#CD5C5C","#FA8072"), stat="identity")+
+  theme_classic(base_size = 22)
+
+dev.off()
 
 #load("C:/Users/allis/OneDrive/Post-doc/floating_solar/floating_solar/data_outputs/final_analysis_data.RData")
 #lakes <- read_sf("C:/Users/allis/OneDrive/Post-doc/big_data/floating_solar/Northeast_NHD_Alison")
