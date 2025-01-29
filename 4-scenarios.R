@@ -6,7 +6,6 @@ library(terra)
 library(stringr)
 library(viridis)
 library(scales)
-library(plotrix)
 
 #map data
 state_lines <- st_read("D:/maps/NA_politicalboundaries_shapefile/PoliticalBoundaries_Shapefile/NA_PoliticalDivisions/data/bound_p/boundaries_p_2021_v3.shp")
@@ -222,6 +221,7 @@ load("data_outputs/lake_risk_df.RData")
 
 load("D:/floating_solar/data_outputs/all_importance_data_updated.RData") 
 
+
 only_selected_lakes <- all_data1 %>%
   filter(Suitabl_FP==1)%>%
   filter()
@@ -305,45 +305,7 @@ ggplot(data = plot_data, aes(x = (year1_ener), y = (sum_biofoul_risk)))+
 ggplot(data = plot_data, aes(x = (richness), y = (sum_biofoul_risk)))+
   geom_point() #high species richness does not necessarily indicate high biofouling risk
 
-load("data_outputs/lake_risk_df.RData")
-load("data/suitable_lakes.RData")
 
-energy_data <- left_join(lakes1,lake_risk_df)
-
-plot(log(energy_data$Shape_Area),log(energy_data$mean_risk))
-
-png("figures/risk_waterbody_size.png", height = 12, width = 12, units = "in",res=300)
-
-ggplot(energy_data, aes(log(Shape_Area), log(mean_risk)))+
-  geom_point()+
-  theme_classic(base_size = 22)+
-  geom_smooth()
-
-dev.off()
-
-
-ggplot(energy_data, aes())
-
-library(plotrix)
-
-plot_data <- energy_data %>%
-  group_by(Water_Type) %>%
-  st_drop_geometry()%>%
-  summarise(mean_coverage = mean(FPV_Pct_co),
-            avg_risk = mean(mean_risk),
-            se_risk = sd(mean_risk)/sqrt(n()))
-
-plot_data$Water_Type <- factor(plot_data$Water_Type, levels = c("Pond","Reservoir","Small Lake","Medium Lake","Large Lake","Very Large Lake"))
-
-png("figures/risk_waterbody_type.png", height = 12, width = 12, units = "in",res=300)
-
-ggplot(plot_data, aes(x = Water_Type, y=avg_risk, col = mean_coverage))+
-  geom_point()+
-  geom_errorbar(aes(x=Water_Type, ymin=avg_risk-se_risk, ymax = avg_risk+se_risk), width=0.2)+
-  theme_classic(base_size = 22)+
-  theme(axis.text.x = element_text(angle=45, hjust=1))
-
-dev.off()
 
 
 # energy scenarios --------------------------------------------------------
