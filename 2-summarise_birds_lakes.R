@@ -174,7 +174,9 @@ for(s in 1:length(new_codes)){
 #create buffer for all lakes and project
 #lakes <- vect("D:/floating_solar/Northeast_NHD_Alison")
 lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
-lake_buffer <- st_buffer(lakes,5000)
+sensitivty_analysis <- c(1000,3000,7000) #different buffer sizes, in meters
+buf <- sensitivty_analysis[1]
+lake_buffer <- st_buffer(lakes,buf)
 #st_write(lake_buffer, file = "D:/floating_solar/generated/lake_5k_buffer.shp")
 # lake_buffer <- load("D:/floating_solar/generated/lake_5k_buffer.RData") this didn't work, saved wrong
 lakes_vec <- vect(lake_buffer)#create SpatVector
@@ -189,6 +191,7 @@ lakes_vec_pro <- project(lakes_vec, crs(bird_data))
 complete <- list.files(path = "D:/floating_solar/generated/")
 complete_codes <- str_extract(complete,"[^_]+")
 
+#checking to see where computer crashed...
 which(complete_codes=="redcro")
 
 #na species who have data but weird results
@@ -200,7 +203,7 @@ which(complete_codes=="redcro")
 rm(sp)
 rm(bird_data)
 
-for(a in 221:length(complete_codes)){
+for(a in 2:length(complete_codes)){
 #for(a in 1:length(na_species)){
   
   sp <- complete_codes[a]
@@ -216,7 +219,7 @@ for(a in 221:length(complete_codes)){
   lake_bird_data$species_code <- rep(sp, length(lake_bird_data$max))
   lake_bird_data$Water_ID <- lakes$Water_ID
 
-  save(lake_bird_data, file = paste0("D:/floating_solar/data_outputs/",sp,"_lake_abd_weight.RData"))
+  save(lake_bird_data, file = paste0("D:/floating_solar/data_outputs/",buf,"_",sp,"_lake_abd_weight.RData"))
   
 }
 
