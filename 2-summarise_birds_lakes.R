@@ -180,7 +180,7 @@ lake_buffer <- st_buffer(lakes,buf)
 #st_write(lake_buffer, file = "D:/floating_solar/generated/lake_5k_buffer.shp")
 # lake_buffer <- load("D:/floating_solar/generated/lake_5k_buffer.RData") this didn't work, saved wrong
 lakes_vec <- vect(lake_buffer)#create SpatVector
-writeVector(lakes_vec, file = "D:/floating_solar/generated/lake_5k_buffer_vec.gpkg")
+#writeVector(lakes_vec, file = "D:/floating_solar/generated/lake_5k_buffer_vec.gpkg")
 #project to ebird data crs
 sp <- "amerob" #species doesn't matter, using for projection
 bird_data <- rast(paste0("D:/floating_solar/generated/",sp,"_max_values.tif"))
@@ -192,7 +192,7 @@ complete <- list.files(path = "D:/floating_solar/generated/")
 complete_codes <- str_extract(complete,"[^_]+")
 
 #checking to see where computer crashed...
-which(complete_codes=="redcro")
+which(complete_codes=="gycthr")
 
 #na species who have data but weird results
 #na_species <- c("chiswi","chwwid","yebcuc", "purmar", "veery",  "bkbcuc", "miskit", "baisan", "pursan","uplsan",
@@ -203,7 +203,7 @@ which(complete_codes=="redcro")
 rm(sp)
 rm(bird_data)
 
-for(a in 2:length(complete_codes)){
+for(a in 136:length(complete_codes)){
 #for(a in 1:length(na_species)){
   
   sp <- complete_codes[a]
