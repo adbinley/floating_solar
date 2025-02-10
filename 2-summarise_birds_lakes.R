@@ -175,7 +175,7 @@ for(s in 1:length(new_codes)){
 #lakes <- vect("D:/floating_solar/Northeast_NHD_Alison")
 lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
 sensitivty_analysis <- c(1000,3000,7000) #different buffer sizes, in meters
-buf <- sensitivty_analysis[1]
+buf <- sensitivty_analysis[3]
 lake_buffer <- st_buffer(lakes,buf)
 #st_write(lake_buffer, file = "D:/floating_solar/generated/lake_5k_buffer.shp")
 # lake_buffer <- load("D:/floating_solar/generated/lake_5k_buffer.RData") this didn't work, saved wrong
@@ -192,7 +192,7 @@ complete <- list.files(path = "D:/floating_solar/generated/")
 complete_codes <- str_extract(complete,"[^_]+")
 
 #checking to see where computer crashed...
-which(complete_codes=="gycthr")
+which(complete_codes=="kinrai4")
 
 #na species who have data but weird results
 #na_species <- c("chiswi","chwwid","yebcuc", "purmar", "veery",  "bkbcuc", "miskit", "baisan", "pursan","uplsan",
@@ -203,7 +203,7 @@ which(complete_codes=="gycthr")
 rm(sp)
 rm(bird_data)
 
-for(a in 136:length(complete_codes)){
+for(a in 153:length(complete_codes)){
 #for(a in 1:length(na_species)){
   
   sp <- complete_codes[a]
@@ -223,6 +223,9 @@ for(a in 136:length(complete_codes)){
   
 }
 
+sensitivty_analysis <- c(1000,3000,7000) #different buffer sizes, in meters
+buf <- sensitivty_analysis[1]
+
 species <- list.files(path = "D:/floating_solar/generated/")
 species_codes <- str_extract(species,"[^_]+")
 
@@ -233,16 +236,17 @@ for(s in 1:length(species_codes)){
   sp <- species_codes[s]
 
   #the sum of abd importance for each lake 
-  load(paste0("D:/floating_solar/data_outputs/",sp,"_lake_abd_weight.RData")) 
+  load(paste0("D:/floating_solar/data_outputs/",buf,"_",sp,"_lake_abd_weight.RData")) 
 
   lake_biodiversity[[s]] <- lake_bird_data
   
 }
 
 lake_biodiversity_df_updated <- bind_rows(lake_biodiversity)
-save(lake_biodiversity_df_updated, file = "D:/floating_solar/data_outputs/lake_ave_biodiversity_updated.RData")
+save(lake_biodiversity_df_updated, file = paste0("D:/floating_solar/data_outputs/",buf,"_lake_ave_biodiversity_updated.RData"))
 
-load("D:/floating_solar/data_outputs/lake_ave_biodiversity_updated.RData")
+
+load(pate0("D:/floating_solar/data_outputs/",buf,"_lake_ave_biodiversity_updated.RData"))
 
 lake_biodiversity_df <- lake_biodiversity_df_updated
 
