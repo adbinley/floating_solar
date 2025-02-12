@@ -28,7 +28,7 @@ VI_data <- read.csv("data_outputs/final_analysis_data.csv")
 #assumed that species with the highest VI decrease by 90% of their max values
 #and species with the lowest VI decrease by 10% of their max values
 
-VI_data$percent_reduction <- rescale(VI_data$VI, to=c(0.1,0.9))
+VI_data$reduction_factor <- 1-rescale(VI_data$VI, to=c(0.1,0.9))
 
 #sort so that values align with raster stack
 VI_data_arr <- VI_data %>%
@@ -55,12 +55,14 @@ lakes_vec_pro <- project(lakes_vec, crs(bird_data))
 masked_raster <- mask(current_zone_layer,lakes_vec_pro)
 
 #calculate new values based on the scaled VI
-solar_reduced_values <- masked_raster*VI_data_arr$percent_reduction
+solar_reduced_values <- masked_raster*VI_data_arr$reduction_factor
 
 #solar zone layer
 #solar_zone_layer <- ifelse(is.na(masked_raster),current_zone_layer,solar_reduced_values)
 #solar_zone_layer <- rast(solar_zone_layer)
 
+#merge with raster values with no floating solar
+#reductions will occur in regions where solar is possible, but values outside of these regions are retained
 solar_zone_layer <- terra::merge(solar_reduced_values,current_zone_layer, first=T)
 
 
@@ -81,6 +83,70 @@ current_zone_layer_trim <- mask(current_zone_layer,NE_pro)
 
 solar_zone_layer_trim <- mask(solar_zone_layer,NE_pro)
 
+#crop to study extent
+current_zone_cr <- crop(current_zone_layer_trim,NE_pro)
+solar_zone_cr <- crop(solar_zone_layer_trim, NE_pro)
+
+#make values easier to deal with
+current_zone_tr <- current_zone_cr*10000
+solar_zone_tr <- solar_zone_cr*10000
+
 #save raster stacks
-writeRaster(current_zone_layer_trim, "D:/floating_solar/data_outputs/current_zone_stack.tif")
-writeRaster(solar_zone_layer_trim, "D:/floating_solar/data_outputs/solar_zone_stack.tif")
+writeRaster(current_zone_tr, "D:/floating_solar/data_outputs/current_zone_stack.tif", overwrite=T)
+writeRaster(solar_zone_tr, "D:/floating_solar/data_outputs/solar_zone_stack.tif", overwrite = T)
+
+
+# get absolute target values ----------------------------------------------
+
+#target is the total "abundance" of each species across the extent
+#idea is to try to preserve as close to this maximum value as possible
+
+#load raster stacks
+current_zone <- rast("D:/floating_solar/data_outputs/current_zone_stack.tif")
+solar_zone <- rast("D:/floating_solar/data_outputs/solar_zone_stack.tif")
+
+#get sum across study extent for each species
+
+abs_target <- global(current_zone, fun = "sum", na.rm=T)
+
+VI_data_arr$abs_target <- abs_target$sum
+
+#filter out species out of range
+ VI_data_arr1 <- VI_data_arr %>%
+   filter(abs_target > 2.47)
+
+#get indices for species removed
+keep_ind <- which(VI_data_arr$abs_target > 2.47)
+
+#targets for lakes only (unsure which is more useful atm)
+current_zone_lakes_cr <- crop(masked_raster,NE_pro)
+
+current_zone_lakes_cr1 <- subset(current_zone_lakes_cr, keep_ind)
+
+abs_target_lakes <- global(current_zone_lakes_cr1, fun = "sum", na.rm = T)
+
+VI_data_arr1$abs_target_lakes <- abs_target_lakes$sum
+
+save(VI_data_arr1, file = "data_outputs/final_analysis_data_targets.RData")
+
+current_zone1 <- subset(current_zone, keep_ind)
+solar_zone1 <- subset(solar_zone, keep_ind)
+
+writeRaster(current_zone1, "D:/floating_solar/data_outputs/current_zone_final.tif", overwrite=T)
+writeRaster(solar_zone1, "D:/floating_solar/data_outputs/solar_zone_final.tif", overwrite = T)
+
+
+# prioritization ----------------------------------------------------------
+
+#load raster stacks
+current_zone <- rast("D:/floating_solar/data_outputs/current_zone_final.tif")
+solar_zone <- rast("D:/floating_solar/data_outputs/solar_zone_final.tif")
+
+VI_data <- load("data_outputs/final_analysis_data_targets.RData")
+
+lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
+lakes1 <- lakes %>%
+  filter(Suitabl_FP ==1)
+
+
+p_1 <- prioritizr::problem(x=lakes1, features="year1_ener", cost_column = "fpv_ha")%>%
