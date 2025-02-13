@@ -89,3 +89,16 @@ tas_pu <- prioritizr::get_tas_pu()
 
 lakes_clean <- lakes2 %>%
   select(c("Water_ID","fpv_ha","year1_ener","mean_risk","Social_B_1"))
+
+#lake overlap problem
+
+lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
+buf <- 1000
+lake_buffer <- st_buffer(lakes,buf)
+lakes_sel <- lake_buffer %>%
+  filter(Suitabl_FP==1)
+#lakes_vec <- vect(lake_buffer)
+
+pdf("figures/1km_buffer_overlap.pdf")
+plot(st_geometry(lakes_sel))
+dev.off()

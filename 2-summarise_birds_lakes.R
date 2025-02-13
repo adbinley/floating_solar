@@ -80,11 +80,11 @@ for(s in 1:length(new_codes)){
   
   #trycatch added in case one raster fails to load - won't break loop
   #load raster into R for each species
-  # tryCatch(bird_data <- rast(paste0("D:/big_data/eBird_FAC/2022/",sp,"/weekly/",sp,"_abundance_median_3km_2022.tif")),
-  #          error = function(e){skip_to_next <<- TRUE})
-  
-  tryCatch(bird_data <- rast(paste0("D:/floating_solar/ebird/2022/",sp,"/weekly/",sp,"_abundance_median_3km_2022.tif")),
+  tryCatch(bird_data <- rast(paste0("D:/big_data/eBird_FAC/2022/",sp,"/weekly/",sp,"_abundance_median_3km_2022.tif")),
            error = function(e){skip_to_next <<- TRUE})
+  
+  # tryCatch(bird_data <- rast(paste0("D:/floating_solar/ebird/2022/",sp,"/weekly/",sp,"_abundance_median_3km_2022.tif")),
+  #          error = function(e){skip_to_next <<- TRUE})
   
   
   if(skip_to_next) {next}
