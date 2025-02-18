@@ -96,7 +96,7 @@ writeRaster(current_zone_tr, "D:/floating_solar/data_outputs/current_zone_stack.
 writeRaster(solar_zone_tr, "D:/floating_solar/data_outputs/solar_zone_stack.tif", overwrite = T)
 
 
-# get absolute target values ----------------------------------------------
+# 4. Get absolute target values ----------------------------------------------
 
 #target is the total "abundance" of each species across the extent
 #idea is to try to preserve as close to this maximum value as possible
@@ -134,6 +134,60 @@ solar_zone1 <- subset(solar_zone, keep_ind)
 
 writeRaster(current_zone1, "D:/floating_solar/data_outputs/current_zone_final.tif", overwrite=T)
 writeRaster(solar_zone1, "D:/floating_solar/data_outputs/solar_zone_final.tif", overwrite = T)
+
+
+# 5. Deal with overlapping MUs --------------------------------------------
+
+#several of the buffered lakes overlap
+#to avoid double counting in overlapping regions, we treat these as a potential management unit that can be selected
+
+#lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
+lakes <- read_sf("C:/Users/allis/OneDrive/Post-doc/big_data/floating_solar/Northeast_NHD_Alison")
+lakes1 <- lakes %>%
+  filter(Suitabl_FP ==1)
+buf <- 1000
+lake_buffer <- st_buffer(lakes1,buf)
+
+#get indices for which lakes overlap
+lake_overlap <- st_overlaps(lake_buffer)
+
+#test to see if working properly
+# i <- 8
+# plot(st_geometry((lake_buffer[lake_overlap[[i]],])))
+# plot(st_geometry(lake_buffer[i,]), col="red",add=T)
+
+#calculate the different combinations that overlap with each lake
+powerset <- function(set) {
+  n <- length(set)
+  result <- list()
+  # Iterate over all possible subset sizes
+  for (k in 1:n) {
+    # Generate combinations of size k
+    result <- c(result, combn(set, k, simplify = FALSE))
+  }
+  return(result)
+}
+
+#loop through all lakes and find all combinations
+
+combos_list <- list()
+
+#for(i in 1:length(lake_overlap)){
+for(i in 1:3){
+  
+    ifelse(length(lake_overlap[[i]])==0,powerset_results <- 0,
+           ifelse(length(lake_overlap[[i]])==1, powerset_results <- lake_overlap[[i]],
+                  powerset_results <- powerset(lake_overlap[[i]])))
+    
+  combos_list <- c(combos_list,powerset_results)
+  
+  
+}
+
+
+
+#if all are selected, non of the component buffers can be also individually selected
+#set linear penalties to prevent this
 
 
 # prioritization ----------------------------------------------------------
