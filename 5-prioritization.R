@@ -157,6 +157,8 @@ lake_overlap <- st_overlaps(lake_buffer)
 # plot(st_geometry(lake_buffer[i,]), col="red",add=T)
 
 #calculate the different combinations that overlap with each lake
+#note that these DO NOT necessarily overlap with one another
+#only with the original indexed lake
 powerset <- function(set) {
   n <- length(set)
   result <- list()
@@ -172,16 +174,24 @@ powerset <- function(set) {
 
 combos_list <- list()
 
-#for(i in 1:length(lake_overlap)){
-for(i in 1:3){
-  
-    ifelse(length(lake_overlap[[i]])==0,powerset_results <- 0,
+for(i in 1:length(lake_overlap)){
+#for(i in 18:21){ #- testing to see how 1s and zeros are working
+
+  #if the me does not overlap with any lakes, skip to next
+    if(length(lake_overlap[[i]])==0) {
+      next
+    }
+
+    #combn() does something weird if there is only one mu overlapping, corrected here
            ifelse(length(lake_overlap[[i]])==1, powerset_results <- lake_overlap[[i]],
-                  powerset_results <- powerset(lake_overlap[[i]])))
-    
-  combos_list <- c(combos_list,powerset_results)
-  
-  
+                  powerset_results <- powerset(lake_overlap[[i]]))
+
+    #add original indexed lake into the vector
+    powerset_results <- lapply(powerset_results, function(x) c(x,i))
+
+    combos_list <- c(combos_list,powerset_results)
+
+
 }
 
 
