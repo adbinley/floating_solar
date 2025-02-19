@@ -3,6 +3,7 @@ library(prioritizr)
 library(terra)
 library(tibble)
 library(dplyr)
+library(sf)
 
 # set seed for reproducibility
 set.seed(500)
@@ -26,7 +27,7 @@ seamount_raster <-
   st_multipoint(rbind(c(2, 2), c(8, 17), c(17, 5))) %>%
   st_buffer(2) %>%
   vect()%>%
-  rasterize(pu_raster, field = 1)
+  terra::rasterize(pu_raster, field = 1)
 
 # create a separate layer for each sea mount
 seamount_stack <-

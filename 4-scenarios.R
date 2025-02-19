@@ -19,6 +19,7 @@ NE_pro <- st_transform(NE, crs = st_crs(4326))
 #### species vulnerability ####
 #1.: which species have the highest vulnerability to floating solar based on our equation?
 
+
 #this is done, skip to bottom now for final data
 data <- read.csv("data/final_analysis_data.csv")
 
@@ -88,9 +89,20 @@ data$risk <- data$exposure_scaled_2*data$VI
 #does not account for exposure yet
 data$VI = ((data$wingloading_quantile + data$vis_acuity_risk)/2) * data$CCS_quantile * data$habitat_score
 
-
 save(data, file = "data_outputs/final_analysis_data.RData")
 write.csv(data, file = "data_outputs/final_analysis_data.csv")
+
+#manually removing species out of range and readjusting HS based on Song et al. 2024
+data <- read.csv("data_outputs/final_analysis_data_n291.csv")
+
+#recalculate VI
+data$VI = ((data$wingloading_quantile + data$vis_acuity_risk)/2) * data$CCS_quantile * data$habitat_score
+write.csv(data, "data_outputs/final_analysis_data_n291.csv")
+
+####sensitivity analysis####
+
+
+
 
 
 
