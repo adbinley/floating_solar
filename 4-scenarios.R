@@ -99,11 +99,126 @@ data <- read.csv("data_outputs/final_analysis_data_n291.csv")
 data$VI = ((data$wingloading_quantile + data$vis_acuity_risk)/2) * data$CCS_quantile * data$habitat_score
 write.csv(data, "data_outputs/final_analysis_data_n291.csv")
 
-####sensitivity analysis####
+####quantify uncertainty in HS####
+
+data <- read.csv("data_outputs/final_analysis_data_n291.csv")
+
+min_range <- function(x){
+  ifelse(x==1,1,x-1)
+}
+
+max_range <- function(x){
+  ifelse(x==5,5,x+1)
+}
+
+data$median_VI_un <- rep(NA,length(data$species_code))
+data$hdi_l <- rep(NA,length(data$species_code))
+data$hdi_u <- rep(NA,length(data$species_code))
+
+for(s in 1:length(data$species_code)){
+  
+  df <- data[s,]
+  
+  set.seed(1)
+  VI_unc <- ((runif(1000, min=min_range(df$wingloading_quantile),max=max_range(df$wingloading_quantile)) + 
+              runif(1000,min = min_range(df$vis_acuity_risk),max=max_range(df$vis_acuity_risk)))/2) * 
+              runif(1000, min = min_range(df$CCS_quantile),max=max_range(df$CCS_quantile)) * 
+              runif(1000, min = 1, max = 5)
+
+  data$median_VI_un[s] <- median(VI_unc)
+  data$hdi_l[s] <- HPDI(VI_unc,0.9)[1]
+  data$hdi_u[s] <- HPDI(VI_unc,0.9)[2]
+
+}
+
+#plot VIs and uncertainty pdf
+
+data_arr <- data %>%
+  arrange(desc(VI))
 
 
+rows_per_batch <- 75
+
+pdf("figures/VIs_with_uncertainty.pdf")
+
+for(s in seq(1, 291, by = rows_per_batch)){
+  
+  subset_df <- data_arr[s:min(s + rows_per_batch - 1, nrow(data_arr)), ]
+  #subset_df <- data_arr[1:97,]
+  
+  VI_plot <- ggplot(subset_df, aes(x=reorder(as.factor(common_name.x),VI),y=VI))+
+    geom_point()+
+    geom_hline(yintercept = mean(data_arr$VI), col="blue",linetype = "dashed")+
+    geom_point(aes(x=reorder(as.factor(common_name.x),VI), y=median_VI_un), col="grey",alpha = 0.3)+
+    geom_errorbar(aes(x=as.factor(common_name.x),ymin=hdi_l,ymax=hdi_u), col="grey", alpha = 0.3)+
+    coord_flip()+
+    #ylab("mean slope (90% CI)")+
+    #ggtitle("Ecoregion Average Slope")+
+    theme_classic(base_size = 8)
+  
+  print(VI_plot)
+  
+}
+
+dev.off()
+
+#spider/radar charts
+library(fmsb)
+
+radar_data <- data %>%
+  filter(species_code %in% c("horgre","wessan","osprey","mallar3","leabit","marwre"))%>%
+  select(c("common_name.x","VI","vis_acuity_risk","CCS_quantile","wingloading_quantile","habitat_score"))
+
+min <- c("min",1,1,1,1,1)
+max <- c("max",5,5,5,5,5)
+
+radar_data <- rbind(max,min, radar_data)
+
+colnames(radar_data) <- c("species","VI","VA","CCS","WL","HS")
+radar_data[,3:6] <- sapply(radar_data[,3:6],as.numeric)
 
 
+# Define colors and titles
+colors <- c("#00AFBB", "#E7B800", "#FC4E07","#660000","#003300","#000066")
+titles <- c("Horned Grebe (VI: 125.0)","Least Bittern (VI: 26.4)","Mallard (VI: 14.0)","Osprey (VI: 7.5)","Western Sandpiper (VI: 56.5)", "Marsh Wren (VI: 5)")
+
+# Reduce plot margin using par()
+# Split the screen in 3 parts
+op <- par(mar = c(1, 1, 1, 1))
+par(mfrow = c(2,3))
+
+# Create the radar chart
+create_beautiful_radarchart <- function(data, color = "#00AFBB", 
+                                        vlabels = colnames(data), vlcex = 1.2,
+                                        caxislabels = NULL, title = NULL, ...){
+  radarchart(
+    data, axistype = 1,
+    # Customize the polygon
+    pcol = color, pfcol = scales::alpha(color, 0.5), plwd = 2, plty = 1,
+    # Customize the grid
+    cglcol = "grey", cglty = 1, cglwd = 0.8,
+    # Customize the axis
+    axislabcol = "grey", 
+    # Variable labels
+    vlcex = vlcex, vlabels = vlabels,
+    caxislabels = caxislabels, title = title, ...
+  )
+}
+
+png("figures/radar_plot.png",height = 9, width = 12, units = "in",res=300)
+
+op <- par(mar = c(1, 1, 1, 1))
+par(mfrow = c(2,3))
+
+for(i in 1:6){
+  create_beautiful_radarchart(
+    data = radar_data[c(1, 2, i+2), c(3:6)], caxislabels = c(1, 2, 3, 4, 5),
+    color = colors[i], title = titles[i]
+  )
+}
+par(op)
+
+dev.off()
 
 
 #### richness ####
