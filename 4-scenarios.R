@@ -385,11 +385,11 @@ all_data2$energy_scaled <- scale(all_data2$year1_ener)[,1]
 
 plot_data <- all_data2 %>%
   arrange((mean_risk))
+# 
+# plot_data2 <- plot_data %>%
+#   filter(mean_risk_scaled>0)
 
-plot_data2 <- plot_data %>%
-  filter(mean_risk_scaled>0)
-
-png("figures/risk_solar_overlay.png", height = 6, width = 8, units = "in",res=300)
+png("figures/risk_solar_overlay1.png", height = 9, width = 11, units = "in",res=300)
 
 ggplot()+
   geom_sf(data = NE_pro)+
@@ -403,6 +403,9 @@ ggplot()+
 
 dev.off()
 
+
+plot_data2 <- plot_data %>%
+  arrange(-energy_scaled)
 
 png("figures/energy_risk_corr.png", height = 6, width = 8, units = "in",res=300)
 
@@ -570,11 +573,15 @@ plot(risk_comparison$VI_risk, risk_comparison$biof_risk)
 
 risk_comparison$energy_rank <- rank(-risk_comparison$energy, ties.method = "first")
 
-
+risk_comparison <- risk_comparison %>%
+  arrange(energy)
+png("figures/corr_biofoul_VI_risk.png",height = 9, width = 9, units = "in",res=300)
 ggplot(risk_comparison, aes(VI_risk,biof_risk))+
-  geom_point((aes(col = energy)))+
-  theme_classic()+
+  geom_point(aes(col = (energy)))+
+  geom_abline(slope=1, col="red",linetype="dashed")+
+  theme_classic(base_size = 20)+
   scale_color_viridis(option="inferno")
+dev.off()
 
 cor(risk_comparison$VI_risk,risk_comparison$biof_risk)
   
