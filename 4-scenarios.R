@@ -544,6 +544,9 @@ all_data_biof$energy_scaled <- scale(all_data_biof$year1_ener)[,1]
 plot_data <- all_data_biof %>%
   arrange((mean_biof_risk))
 
+all_data_ranked <- data.frame(Water_ID = plot_data$Water_ID,
+                              bird_rank = rank(all_data_biof$mea))
+
 png("figures/biofouling_risk.png", height = 6, width = 8, units = "in",res=300)
 
 ggplot()+
@@ -586,7 +589,35 @@ dev.off()
 cor(risk_comparison$VI_risk,risk_comparison$biof_risk)
   
 
-#and species richness?
+#outliers?
+
+outlier_inds <- which(lake_biofoul_df1$mean_biof_risk %in% boxplot.stats(lake_biofoul_df1$mean_biof_risk)$out)
+
+outlier_data <- lake_biofoul_df1[outlier_inds,]
+
+lakes <- read_sf("C:/Users/allis/OneDrive/Post-doc/big_data/floating_solar/Northeast_NHD_Alison")
+lakes_selected <- lakes %>%
+  filter(Suitabl_FP ==1)
+
+outlier_data_lakes <- left_join(outlier_data,lakes_selected)
+outlier_data_lakes$energy_scaled <- scale(outlier_data_lakes$year1_ener)[,1]
+
+outlier_data_lakes <- outlier_data_lakes %>%
+  arrange((mean_biof_risk))
+
+png("figures/biofouling_risk_outliers.png", height = 9, width = 11, units = "in",res=300)
+
+ggplot()+
+  geom_sf(data = NE_pro)+
+  theme_classic(base_size = 15)+
+  geom_point(data = outlier_data_lakes, aes(x = water_lon, y = water_lat, col = mean_biof_risk_scaled, size = energy_scaled), alpha = 0.5)+
+  scale_color_viridis(option="inferno",limits = c(0,30))+
+  ylab("")+
+  xlab("")+
+  scale_size(guide="none")
+#scale_color_gsea(reverse = TRUE, limits = c(-19,19))
+
+dev.off()
 
 
 
@@ -614,6 +645,58 @@ cor(risk_comparison$VI_risk,risk_comparison$biof_risk)
 
 
 #### comparisons ####
+library(rstan)
+
+load("data_outputs/lake_biofoul_risk_df.RData")
+load("data_outputs/lake_risk_df.RData")
+
+data <- read.csv("data_outputs/final_analysis_data_n291.csv")
+
+lakes <- read_sf("C:/Users/allis/OneDrive/Post-doc/big_data/floating_solar/Northeast_NHD_Alison")
+
+selected_lakes <- lakes %>%
+  filter(Suitabl_FP ==1)
+
+all_data_biof <- left_join(selected_lakes,lake_biofoul_df1)
+all_data <- left_join(all_data_biof,lake_risk_df)
+
+all_data_ranked <- data.frame(Water_ID = all_data$Water_ID,
+                              VI_value = all_data$mean_risk_scaled,
+                              VI_rank = rank(all_data$mean_risk_scaled),
+                              biof_rank = rank(all_data$mean_biof_risk_scaled),
+                              water_quality = all_data$Biodiversi,
+                              social_value = all_data$Social_B_1)
+
+all_data_ranked <- all_data_ranked %>%
+  arrange(VI_rank)
+
+save(all_data_ranked, file = "data/all_data_model.RData")
+load("data/all_data_model.RData")
+
+scen_mod_data <- list(N = length(all_data_ranked$Water_ID),
+                 n_WQ = as.integer(2),
+                 n_SOC = as.integer(2),
+                 VI_value = all_data_ranked$VI_value,
+                 WQ_value = all_data_ranked$water_quality+1,
+                 SOC_value = all_data_ranked$social_value+1)
+
+
+
+scen_mod_fit <- stan(file = "models/scenario_comparison_model.stan",
+                   data = scen_mod_data)
+
+save(ax_mod_fit, file = "mod_outputs/log_ax_mod_fit.RData")
+load("mod_outputs/log_ax_mod_fit.RData")
+
+summary(ax_mod_fit)
+
+library(shinystan)
+launch_shinystan(ax_mod_fit)
+
+draws <- as.data.frame(ax_mod_fit)
+
+
+
 
 ggplot(data = plot_data, aes(x = (richness), y = (sum_biofoul_risk)))+
   geom_point() #high species richness does not necessarily indicate high biofouling risk
