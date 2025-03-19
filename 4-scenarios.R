@@ -685,15 +685,15 @@ scen_mod_data <- list(N = length(all_data_ranked$Water_ID),
 scen_mod_fit <- stan(file = "models/scenario_comparison_model.stan",
                    data = scen_mod_data)
 
-save(ax_mod_fit, file = "mod_outputs/log_ax_mod_fit.RData")
-load("mod_outputs/log_ax_mod_fit.RData")
+save(scen_mod_fit, file = "mod_outputs/scen_mod_fit.RData")
+load("mod_outputs/scen_mod_fit.RData")
 
-summary(ax_mod_fit)
+summary(scen_mod_fit)
 
 library(shinystan)
-launch_shinystan(ax_mod_fit)
+launch_shinystan(scen_mod_fit)
 
-draws <- as.data.frame(ax_mod_fit)
+draws <- as.data.frame(scen_mod_fit)
 
 
 
