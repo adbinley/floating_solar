@@ -308,6 +308,7 @@ rm(lakes)
 #   filter(Water_ID %in% lake_coverage$Water_ID)
 
 lake_VI_df <- data.frame(Water_ID = lake_coverage$Water_ID)
+lake_exp_df <- data.frame(Water_ID = lake_coverage$Water_ID)
 
 #which(data$species_code == "gbbgul")
 
@@ -344,14 +345,22 @@ for(s in 1:length(data$species_code)){
   sp_df <- lake_bird_data2 %>%
     select(c("Water_ID","risk"))
   
+  sp_exp_df <- lake_bird_data2 %>%
+    select(c("Water_ID","exposure"))
+  
   colnames(sp_df) <- c("Water_ID",sp)
+  
+  colnames(sp_exp_df)<- c("Water_ID",sp)
   
   
   lake_VI_df <- left_join(lake_VI_df,sp_df)
   
+  lake_exp_df <- left_join(lake_exp_df,sp_exp_df)
+  
 }
-
+save(lake_exp_df, file = "data_outputs/lake_exp_df.RData")
 save(lake_VI_df, file="data_outputs/lake_VI_df.RData")
+
 load("data_outputs/lake_VI_df.RData")
 
 lake_risk_df <- data.frame(Water_ID = lake_VI_df$Water_ID,
@@ -361,6 +370,30 @@ lake_risk_df <- data.frame(Water_ID = lake_VI_df$Water_ID,
 lake_risk_df$mean_risk_scaled <- scale(risk_df$mean_risk)[,1]
 
 save(lake_risk_df, file = "data_outputs/lake_risk_df.RData")
+
+#alternate approach
+
+load("data_outputs/lake_exp_df.RData")
+data <- read.csv("data_outputs/final_analysis_data_n291.csv")
+
+w_mean_risk <- c()
+
+for(l in 1:length(lake_exp_df$Water_ID)){
+
+  # lake_risk_df_weighted <- data.frame(Water_ID = lake_VI_df$Water_ID,
+  #                                     w_mean_risk = weighted.mean(lake_VI_df[,2:ncol(lake_VI_df)], data$VI))
+  
+  d <- lake_exp_df[l,2:ncol(lake_exp_df)]
+  w_risk <- weighted.mean(d,data$VI)
+  
+  w_mean_risk <- c(w_mean_risk,w_risk)
+  
+}
+
+lake_risk_df_weighted <- data.frame(Water_ID = lake_exp_df$Water_ID,
+                                    w_mean_risk = w_mean_risk)
+
+save(lake_risk_df_weighted, file = "data_outputs/lake_risk_df_weighted.RData")
 
 #### start here ####
 load("data_outputs/lake_risk_df.RData")
@@ -695,7 +728,25 @@ launch_shinystan(scen_mod_fit)
 
 draws <- as.data.frame(scen_mod_fit)
 
+#lakes have both WQ and SOC value
+WQ_SOC <- draws$`WQ_intercept[2]`+ draws$`SOC_intercept[2]`
+WQ_noSOC <- draws$`WQ_intercept[2]`+ draws$`SOC_intercept[1]`
+SOC_noWQ <- draws$`WQ_intercept[1]`+ draws$`SOC_intercept[2]`
 
+#library(rethinking)
+
+#comp_plot_data <- data.frame(mean_WQ_SOC = mean())
+
+#try violin plot
+
+comp_plot_data <- data.frame(WQ_SOC=WQ_SOC,
+                             WQ_noSOC=WQ_noSOC,
+                             SOC_noWQ=SOC_noWQ)
+
+comp_plot_data1 <- pivot_longer(comp_plot_data, names_to = "water_body_value", cols=1:3, values_to="draws")
+
+ggplot(comp_plot_data1, aes(x=water_body_value, y = draws))+
+  geom_violin()
 
 
 ggplot(data = plot_data, aes(x = (richness), y = (sum_biofoul_risk)))+
