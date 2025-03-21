@@ -416,6 +416,8 @@ all_data2 <- left_join(selected_lakes,lake_risk_df)
 all_data2$bird_rank <- rank(-all_data2$mean_risk, ties.method = "first")
 all_data2$energy_scaled <- scale(all_data2$year1_ener)[,1]
 
+cor(all_data2$energy_scaled,all_data2$mean_risk_scaled)
+
 plot_data <- all_data2 %>%
   arrange((mean_risk))
 # 
@@ -733,9 +735,27 @@ WQ_SOC <- draws$`WQ_intercept[2]`+ draws$`SOC_intercept[2]`
 WQ_noSOC <- draws$`WQ_intercept[2]`+ draws$`SOC_intercept[1]`
 SOC_noWQ <- draws$`WQ_intercept[1]`+ draws$`SOC_intercept[2]`
 
+#high probability density interval
 #library(rethinking)
 
-#comp_plot_data <- data.frame(mean_WQ_SOC = mean())
+comp_plot_data1 <- data.frame(scenario = c("Freshwater & Social","Freshwater Only","Social Only"),
+                              mean_VI = c(mean(WQ_SOC),mean(WQ_noSOC),mean(SOC_noWQ)),
+                              hpdi_u = c(HPDI(WQ_SOC, prob = 0.9)[2],HPDI(WQ_noSOC, prob = 0.9)[2],HPDI(SOC_noWQ, prob = 0.9)[2]),
+                              hpdi_l = c(HPDI(WQ_SOC, prob = 0.9)[1],HPDI(WQ_noSOC, prob = 0.9)[1],HPDI(SOC_noWQ, prob = 0.9)[1]))
+
+png("figures/scenario_comparison_plot.png", height = 10, width = 10, units="in", res = 300)
+
+ggplot(comp_plot_data1, aes(x=scenario, y = mean_VI))+
+  geom_errorbar(aes(ymin=hpdi_l,ymax=hpdi_u), width = 0.1, size = 1)+
+  geom_point(size = 3, shape = 21, fill = "white")+
+  geom_hline(aes(yintercept=0), linetype = "dashed", col = "blue")+
+  theme_classic(base_size = 18)+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1,hjust = 1))+
+  scale_y_continuous(limits=c(-0.5,0.5))+
+  ylab("Mean Avian Risk")+
+  xlab("")
+  
+dev.off()
 
 #try violin plot
 
@@ -761,7 +781,7 @@ library(tidyverse)
 library(prioritizr)
 library(tmap)
 
-
+corr()
 
 #simple approach where lakes are selected based on two criteria:
 #first, starting with the lake that has the best energy/cost ratio - plot energy per unit cost
