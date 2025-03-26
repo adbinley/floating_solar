@@ -225,13 +225,13 @@ mean(data_arr$VI)
 sd(data_arr$VI)
 top10 <- data_arr[1:10,]
 mean(top10$habitat_score)
-sd(top10$habitat_score)
+sd(top10$habitat_score)/sqrt(10)
 mean(top10$vis_acuity_risk)
-sd(top10$vis_acuity_risk)
+sd(top10$vis_acuity_risk)/sqrt(10)
 mean(top10$wingloading_quantile)
-sd(top10$wingloading_quantile)
+sd(top10$wingloading_quantile)/sqrt(10)
 mean(top10$CCS_quantile)
-sd(top10$CCS_quantile)
+sd(top10$CCS_quantile)/sqrt(10)
 
 par(mfrow = c(1,1))
 
