@@ -6,9 +6,10 @@ library(terra)
 library(stringr)
 library(viridis)
 library(scales)
+library(ggsci)
 
 #map data
-state_lines <- st_read("D:/maps/NA_politicalboundaries_shapefile/PoliticalBoundaries_Shapefile/NA_PoliticalDivisions/data/bound_p/boundaries_p_2021_v3.shp")
+state_lines <- st_read("A:/maps/NA_politicalboundaries_shapefile/PoliticalBoundaries_Shapefile/NA_PoliticalDivisions/data/bound_p/boundaries_p_2021_v3.shp")
 
 NE <- state_lines %>%
   filter(NAME_En %in% c("Maine","New Hampshire","Vermont","Massachusetts","Rhode Island","Connecticut","New York","Pennsylvania","New Jersey","Delaware","Maryland","West Virginia","Virginia","District of Columbia"))%>%
@@ -18,6 +19,7 @@ NE_pro <- st_transform(NE, crs = st_crs(4326))
 
 #### species vulnerability ####
 #1.: which species have the highest vulnerability to floating solar based on our equation?
+
 
 #this is done, skip to bottom now for final data
 data <- read.csv("data/final_analysis_data.csv")
@@ -39,7 +41,7 @@ lake_coverage <- lakes %>%
 
 rm(lakes)
 
-#calculate exposure to FVP
+#calculate exposure to FPV
 exposure_vector <- c()
 
 for(s in 1:length(data$species_code)){
@@ -88,16 +90,155 @@ data$risk <- data$exposure_scaled_2*data$VI
 #does not account for exposure yet
 data$VI = ((data$wingloading_quantile + data$vis_acuity_risk)/2) * data$CCS_quantile * data$habitat_score
 
-
 save(data, file = "data_outputs/final_analysis_data.RData")
 write.csv(data, file = "data_outputs/final_analysis_data.csv")
 
+#manually removing species out of range and readjusting HS based on Song et al. 2024
+data <- read.csv("data_outputs/final_analysis_data_n291.csv")
 
+#recalculate VI
+data$VI = ((data$wingloading_quantile + data$vis_acuity_risk)/2) * data$CCS_quantile * data$habitat_score
+write.csv(data, "data_outputs/final_analysis_data_n291.csv")
+
+####quantify uncertainty in HS####
+
+data <- read.csv("data_outputs/final_analysis_data_n291.csv")
+
+min_range <- function(x){
+  ifelse(x==1,1,x-1)
+}
+
+max_range <- function(x){
+  ifelse(x==5,5,x+1)
+}
+
+data$median_VI_un <- rep(NA,length(data$species_code))
+data$hdi_l <- rep(NA,length(data$species_code))
+data$hdi_u <- rep(NA,length(data$species_code))
+
+for(s in 1:length(data$species_code)){
+  
+  df <- data[s,]
+  
+  set.seed(1)
+  VI_unc <- ((runif(1000, min=min_range(df$wingloading_quantile),max=max_range(df$wingloading_quantile)) + 
+              runif(1000,min = min_range(df$vis_acuity_risk),max=max_range(df$vis_acuity_risk)))/2) * 
+              runif(1000, min = min_range(df$CCS_quantile),max=max_range(df$CCS_quantile)) * 
+              runif(1000, min = 1, max = 5)
+
+  data$median_VI_un[s] <- median(VI_unc)
+  data$hdi_l[s] <- HPDI(VI_unc,0.9)[1]
+  data$hdi_u[s] <- HPDI(VI_unc,0.9)[2]
+
+}
+
+#plot VIs and uncertainty pdf
+
+data_arr <- data %>%
+  arrange(desc(VI))
+
+
+rows_per_batch <- 75
+
+pdf("figures/VIs_with_uncertainty.pdf")
+
+for(s in seq(1, 291, by = rows_per_batch)){
+  
+  subset_df <- data_arr[s:min(s + rows_per_batch - 1, nrow(data_arr)), ]
+  #subset_df <- data_arr[1:97,]
+  
+  VI_plot <- ggplot(subset_df, aes(x=reorder(as.factor(common_name.x),VI),y=VI))+
+    geom_point()+
+    geom_hline(yintercept = mean(data_arr$VI), col="blue",linetype = "dashed")+
+    geom_point(aes(x=reorder(as.factor(common_name.x),VI), y=median_VI_un), col="grey",alpha = 0.3)+
+    geom_errorbar(aes(x=as.factor(common_name.x),ymin=hdi_l,ymax=hdi_u), col="grey", alpha = 0.3)+
+    coord_flip()+
+    #ylab("mean slope (90% CI)")+
+    #ggtitle("Ecoregion Average Slope")+
+    theme_classic(base_size = 8)
+  
+  print(VI_plot)
+  
+}
+
+dev.off()
+
+#spider/radar charts
+library(fmsb)
+
+radar_data <- data %>%
+  filter(species_code %in% c("horgre","wessan","osprey","mallar3","leabit","marwre"))%>%
+  select(c("common_name.x","VI","vis_acuity_risk","CCS_quantile","wingloading_quantile","habitat_score"))
+
+min <- c("min",1,1,1,1,1)
+max <- c("max",5,5,5,5,5)
+
+radar_data <- rbind(max,min, radar_data)
+
+colnames(radar_data) <- c("species","VI","VA","CCS","WL","HS")
+radar_data[,3:6] <- sapply(radar_data[,3:6],as.numeric)
+
+
+# Define colors and titles
+colors <- c("#00AFBB", "#E7B800", "#FC4E07","#660000","#003300","#000066")
+titles <- c("Horned Grebe (VI: 125.0)","Least Bittern (VI: 26.4)","Mallard (VI: 14.0)","Marsh Wren (VI: 5)","Osprey (VI: 7.5)","Western Sandpiper (VI: 56.5)")
+
+# Reduce plot margin using par()
+# Split the screen in 3 parts
+op <- par(mar = c(1, 1, 1, 1))
+par(mfrow = c(2,3))
+
+# Create the radar chart
+create_beautiful_radarchart <- function(data, color = "#00AFBB", 
+                                        vlabels = colnames(data), vlcex = 1.2,
+                                        caxislabels = NULL, title = NULL, ...){
+  radarchart(
+    data, axistype = 1,
+    # Customize the polygon
+    pcol = color, pfcol = scales::alpha(color, 0.5), plwd = 2, plty = 1,
+    # Customize the grid
+    cglcol = "grey", cglty = 1, cglwd = 0.8,
+    # Customize the axis
+    axislabcol = "grey", 
+    # Variable labels
+    vlcex = vlcex, vlabels = vlabels,
+    caxislabels = caxislabels, title = title, ...
+  )
+}
+
+png("figures/radar_plot.png",height = 9, width = 12, units = "in",res=300)
+
+op <- par(mar = c(1, 1, 1, 1))
+par(mfrow = c(2,3))
+
+for(i in 1:6){
+  create_beautiful_radarchart(
+    data = radar_data[c(1, 2, i+2), c(3:6)], caxislabels = c(1, 2, 3, 4, 5),
+    color = colors[i], title = titles[i]
+  )
+}
+par(op)
+
+dev.off()
+
+mean(data_arr$VI)
+sd(data_arr$VI)
+top10 <- data_arr[1:10,]
+mean(top10$habitat_score)
+sd(top10$habitat_score)/sqrt(10)
+mean(top10$vis_acuity_risk)
+sd(top10$vis_acuity_risk)/sqrt(10)
+mean(top10$wingloading_quantile)
+sd(top10$wingloading_quantile)/sqrt(10)
+mean(top10$CCS_quantile)
+sd(top10$CCS_quantile)/sqrt(10)
+
+par(mfrow = c(1,1))
 
 #### richness ####
 #2: overlap of species richness/diversity/importance and solar energy
 
-load("D:/floating_solar/data_outputs/all_importance_data_updated.RData") 
+load("A:/floating_solar/data_outputs/all_importance_data_updated.RData") 
 
 only_selected_lakes <- all_data1 %>%
   filter(Suitabl_FP==1)%>%
@@ -149,9 +290,11 @@ dev.off()
 
 #### VI for each lake ####
 
-load("data_outputs/final_analysis_data.RData")
+#load("data_outputs/final_analysis_data.RData")
+data <- read.csv("data_outputs/final_analysis_data_n291.csv")
 
-lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
+
+lakes <- read_sf("A:/floating_solar/Northeast_NHD_Alison")
 
 #suitable lakes only, and their percent coverage
 lake_coverage <- lakes %>%
@@ -161,8 +304,11 @@ lake_coverage <- lakes %>%
 
 rm(lakes)
 
-lake_VI_df <- data.frame(Water_ID = lake_bird_data$Water_ID)%>%
-  filter(Water_ID %in% lake_coverage$Water_ID)
+# lake_VI_df <- data.frame(Water_ID = lake_bird_data$Water_ID)%>%
+#   filter(Water_ID %in% lake_coverage$Water_ID)
+
+lake_VI_df <- data.frame(Water_ID = lake_coverage$Water_ID)
+lake_exp_df <- data.frame(Water_ID = lake_coverage$Water_ID)
 
 #which(data$species_code == "gbbgul")
 
@@ -170,7 +316,7 @@ for(s in 1:length(data$species_code)){
   
   sp <- data$species_code[s]
   
-  load(paste0("D:/floating_solar/data_outputs/",sp,"_lake_abd_weight.RData")) #this is sum, mean is also available
+  load(paste0("A:/floating_solar/data_outputs/",sp,"_lake_abd_weight.RData")) #this is sum, mean is also available
   
   lake_bird_data1 <- lake_bird_data %>%
     filter(Water_ID %in% lake_coverage$Water_ID)
@@ -182,6 +328,7 @@ for(s in 1:length(data$species_code)){
   lake_bird_data2 <- lake_bird_data2 %>%
     #multiply importance at each lake by the proportion of the lake to be covered
     #note here the scaling is for each species
+    mutate(importance = max)%>%
     mutate(exposure = max*FPV_Pct_co)%>%
     mutate(exposure_scaled_2 = scales::rescale(exposure, to = c(0,1)))
     # mutate(exposure_scaled = ifelse(exposure != 0,
@@ -198,54 +345,116 @@ for(s in 1:length(data$species_code)){
   sp_df <- lake_bird_data2 %>%
     select(c("Water_ID","risk"))
   
+  sp_exp_df <- lake_bird_data2 %>%
+    select(c("Water_ID","exposure"))
+  
   colnames(sp_df) <- c("Water_ID",sp)
+  
+  colnames(sp_exp_df)<- c("Water_ID",sp)
   
   
   lake_VI_df <- left_join(lake_VI_df,sp_df)
   
+  lake_exp_df <- left_join(lake_exp_df,sp_exp_df)
+  
 }
-
+save(lake_exp_df, file = "data_outputs/lake_exp_df.RData")
 save(lake_VI_df, file="data_outputs/lake_VI_df.RData")
+
 load("data_outputs/lake_VI_df.RData")
 
-lake_VI_df$mean_risk = rowMeans(lake_VI_df[,2:ncol(lake_VI_df)])
-lake_VI_df$sum_risk = rowSums(lake_VI_df[,2:ncol(lake_VI_df)])
+lake_risk_df <- data.frame(Water_ID = lake_VI_df$Water_ID,
+                      mean_risk = rowMeans(lake_VI_df[,2:ncol(lake_VI_df)]),
+                      sum_risk = rowSums(lake_VI_df[,2:ncol(lake_VI_df)]))
 
-lake_risk_df <- lake_VI_df %>%
-  select(c("Water_ID","mean_risk","sum_risk"))
+lake_risk_df$mean_risk_scaled <- scale(risk_df$mean_risk)[,1]
 
 save(lake_risk_df, file = "data_outputs/lake_risk_df.RData")
+
+#alternate approach
+
+load("data_outputs/lake_exp_df.RData")
+data <- read.csv("data_outputs/final_analysis_data_n291.csv")
+
+w_mean_risk <- c()
+
+for(l in 1:length(lake_exp_df$Water_ID)){
+
+  # lake_risk_df_weighted <- data.frame(Water_ID = lake_VI_df$Water_ID,
+  #                                     w_mean_risk = weighted.mean(lake_VI_df[,2:ncol(lake_VI_df)], data$VI))
+  
+  d <- lake_exp_df[l,2:ncol(lake_exp_df)]
+  w_risk <- weighted.mean(d,data$VI)
+  
+  w_mean_risk <- c(w_mean_risk,w_risk)
+  
+}
+
+lake_risk_df_weighted <- data.frame(Water_ID = lake_exp_df$Water_ID,
+                                    w_mean_risk = w_mean_risk)
+
+save(lake_risk_df_weighted, file = "data_outputs/lake_risk_df_weighted.RData")
 
 #### start here ####
 load("data_outputs/lake_risk_df.RData")
 
-load("D:/floating_solar/data_outputs/all_importance_data_updated.RData") 
+data <- read.csv("data_outputs/final_analysis_data_n291.csv")
 
+lakes <- read_sf("A:/floating_solar/Northeast_NHD_Alison")
 
-only_selected_lakes <- all_data1 %>%
-  filter(Suitabl_FP==1)%>%
-  filter()
+selected_lakes <- lakes %>%
+  filter(Suitabl_FP ==1)
 
-all_data2 <- left_join(only_selected_lakes,lake_risk_df)
+#load("A:/floating_solar/data_outputs/all_importance_data_updated.RData") 
+
+# only_selected_lakes <- all_data1 %>%
+#   filter(Suitabl_FP==1)%>%
+#   filter()
+
+all_data2 <- left_join(selected_lakes,lake_risk_df)
 
 all_data2$bird_rank <- rank(-all_data2$mean_risk, ties.method = "first")
-all_data2$energy_scaled <- scale(all_data2$year1_ener)
+all_data2$energy_scaled <- scale(all_data2$year1_ener)[,1]
+
+cor(all_data2$energy_scaled,all_data2$mean_risk_scaled)
 
 plot_data <- all_data2 %>%
   arrange((mean_risk))
+# 
+# plot_data2 <- plot_data %>%
+#   filter(mean_risk_scaled>0)
 
-png("figures/risk_solar_overlay.png", height = 12, width = 12, units = "in",res=300)
+png("figures/risk_solar_overlay1.png", height = 9, width = 11, units = "in",res=300)
 
 ggplot()+
   geom_sf(data = NE_pro)+
-  theme_void()+
-  geom_point(data = plot_data, aes(x = water_lon, y = water_lat, color = mean_risk, size = year1_ener))+
-  scale_color_viridis()
+  theme_classic(base_size = 15)+
+  geom_point(data = plot_data, aes(x = water_lon, y = water_lat, col = mean_risk_scaled, size = energy_scaled))+
+  scale_color_viridis(option="inferno",limits = c(-3,19))+
+  ylab("")+
+  xlab("")+
+  scale_size(guide="none")
+  #scale_color_gsea(reverse = TRUE, limits = c(-19,19))
 
 dev.off()
 
 
-ggplot(data = plot_data, aes(x = energy_scaled, y = mean_risk)) +
+plot_data2 <- plot_data %>%
+  arrange(-energy_scaled)
+
+png("figures/energy_risk_corr.png", height = 6, width = 8, units = "in",res=300)
+
+ggplot(plot_data, aes(x=energy_scaled, y=mean_risk_scaled) ) +
+  geom_hex() +
+  scale_fill_continuous(type = "viridis") +
+  theme_bw(base_size = 20)+
+  xlab("energy")+
+  ylab("risk")
+
+dev.off()
+
+
+ggplot(data = plot_data, aes(x = energy_scaled, y = mean_risk_scaled)) +
   geom_point()
 
 png("figures/mean_importance_solar_overlay.png", height = 12, width = 12, units = "in",res=300)
@@ -273,34 +482,292 @@ dev.off()
 #2. look at relationship between the concentration of biofouling species and solar energy
 
 #load("D:/floating_solar/data_outputs/all_importance_data.RData")
-load("data_outputs/final_biofouling_data.RData")
+# load("data_outputs/final_biofouling_data.RData")
 
-only_selected_lakes <- all_data2 %>%
-  filter(Suitabl_FP==1)%>%
-  filter()
+# only_selected_lakes <- all_data2 %>%
+#   filter(Suitabl_FP==1)%>%
+#   filter()
 
-only_selected_lakes$bird_rank <- rank(-only_selected_lakes$sum_biofoul_risk, ties.method = "first")
+data <- read.csv("data_outputs/final_analysis_data_n291.csv")
 
-plot_data <- only_selected_lakes %>%
-  arrange((sum_biofoul_risk))%>%
-  filter(sum_biofoul_risk!=0)
+biofoul_data <- data %>%
+  filter(group %in% c("waterbird","shorebird","waterfowl"))
 
-png("figures/sum_biofouling_solar_overlay.png", height = 12, width = 12, units = "in",res=300)
+#scale risk between 0 and 1, as percentage of max
+biofoul_data$biofoul_risk <- rescale(biofoul_data$predicted_defecation_rate, to=c(0,1))
+lakes <- read_sf("A:/floating_solar/Northeast_NHD_Alison")
+
+#suitable lakes only, and their percent coverage
+lake_coverage <- lakes %>%
+  select(c("Water_ID","FPV_Pct_co","Suitabl_FP"))%>%
+  st_drop_geometry()%>%
+  filter(Suitabl_FP ==1)
+
+lake_biofoul_df <- data.frame(Water_ID = lake_coverage$Water_ID)
+
+#which(data$species_code == "gbbgul")
+
+for(s in 1:length(biofoul_data$species_code)){
+  
+  sp <- biofoul_data$species_code[s]
+  
+  load(paste0("A:/floating_solar/data_outputs/",sp,"_lake_abd_weight.RData")) #this is sum, mean is also available
+  
+  lake_bird_data1 <- lake_bird_data %>%
+    filter(Water_ID %in% lake_coverage$Water_ID)
+  
+  lake_bird_data2 <- left_join(lake_bird_data1, lake_coverage)
+  
+  #calculating exposure based on max abundance at each waterbody and solar coverage
+  #this gives us a scaled value that represents the range of exposures for each species
+  lake_bird_data2 <- lake_bird_data2 %>%
+    #multiply importance at each lake by the proportion of the lake to be covered
+    #note here the scaling is for each species
+    mutate(importance = max)%>%
+    mutate(exposure = max*FPV_Pct_co)%>%
+    mutate(exposure_scaled_2 = scales::rescale(exposure, to = c(0,1)))
+  # mutate(exposure_scaled = ifelse(exposure != 0,
+  #                                 scales::rescale(exposure, to = c(1,5)),
+  #                                 0))
+  
+  sp_data <- biofoul_data %>%
+    filter(species_code == sp)
+  
+  #calculating the biofoul risk for each species at each lake, using the specific exposure values for each lake
+  lake_bird_data2$biofoul_risk = sp_data$biofoul_risk * lake_bird_data2$exposure_scaled_2
+  
+  sp_df <- lake_bird_data2 %>%
+    select(c("Water_ID","biofoul_risk"))
+  
+  colnames(sp_df) <- c("Water_ID",sp)
+  
+  
+  lake_biofoul_df <- left_join(lake_biofoul_df,sp_df)
+  
+}
+
+save(lake_biofoul_df, file="data_outputs/lake_biofoul_df.RData")
+load("data_outputs/lake_biofoul_df.RData")
+
+
+lake_biofoul_df1 <- data.frame(Water_ID = lake_biofoul_df$Water_ID,
+                           mean_risk = rowMeans(lake_biofoul_df[,2:ncol(lake_biofoul_df)]),
+                           sum_risk = rowSums(lake_biofoul_df[,2:ncol(lake_biofoul_df)]))
+
+lake_biofoul_df1$mean_risk_scaled <- scale(lake_biofoul_df1$mean_risk)[,1]
+
+colnames(lake_biofoul_df1) <- c("Water_ID","mean_biof_risk","sum_biof_risk","mean_biof_risk_scaled")
+
+save(lake_biofoul_df1, file = "data_outputs/lake_biofoul_risk_df.RData")
+
+####start here####
+
+load("data_outputs/lake_biofoul_risk_df.RData")
+
+data <- read.csv("data_outputs/final_analysis_data_n291.csv")
+
+lakes <- read_sf("A:/floating_solar/Northeast_NHD_Alison")
+
+selected_lakes <- lakes %>%
+  filter(Suitabl_FP ==1)
+
+all_data_biof <- left_join(selected_lakes,lake_biofoul_df1)
+
+all_data_biof$bird_rank <- rank(-all_data_biof$mean_biof_risk, ties.method = "first")
+all_data_biof$energy_scaled <- scale(all_data_biof$year1_ener)[,1]
+
+plot_data <- all_data_biof %>%
+  arrange((mean_biof_risk))
+
+all_data_ranked <- data.frame(Water_ID = plot_data$Water_ID,
+                              bird_rank = rank(all_data_biof$mea))
+
+png("figures/biofouling_risk.png", height = 6, width = 8, units = "in",res=300)
 
 ggplot()+
   geom_sf(data = NE_pro)+
-  theme_void()+
-  geom_point(data = plot_data, aes(x = water_lon, y = water_lat, color = sum_biofoul_risk, size = year1_ener))+
-  scale_color_viridis()
+  theme_classic(base_size = 15)+
+  geom_point(data = plot_data, aes(x = water_lon, y = water_lat, col = mean_biof_risk_scaled, size = energy_scaled))+
+  scale_color_viridis(option="inferno",limits = c(-5,30))+
+  ylab("")+
+  xlab("")+
+  scale_size(guide="none")
+#scale_color_gsea(reverse = TRUE, limits = c(-19,19))
 
 dev.off()
 
-ggplot(data = plot_data, aes(x = (year1_ener), y = (sum_biofoul_risk)))+
-  geom_point()
+#is biofouling risk simply high where risk to avian biodiversity is high?
+
+biof_risk <- data.frame(Water_ID = all_data_biof$Water_ID,
+                              biof_risk = all_data_biof$mean_biof_risk_scaled,
+                              energy = all_data2$energy_scaled)
+
+VI_risk <- data.frame(Water_ID = all_data2$Water_ID,
+                      VI_risk = all_data2$mean_risk_scaled)
+
+risk_comparison <- left_join(biof_risk,VI_risk)
+
+plot(risk_comparison$VI_risk, risk_comparison$biof_risk)
+
+risk_comparison$energy_rank <- rank(-risk_comparison$energy, ties.method = "first")
+
+risk_comparison <- risk_comparison %>%
+  arrange(energy)
+png("figures/corr_biofoul_VI_risk.png",height = 9, width = 9, units = "in",res=300)
+ggplot(risk_comparison, aes(VI_risk,biof_risk))+
+  geom_point(aes(col = (energy)))+
+  geom_abline(slope=1, col="red",linetype="dashed")+
+  theme_classic(base_size = 20)+
+  scale_color_viridis(option="inferno")
+dev.off()
+
+cor(risk_comparison$VI_risk,risk_comparison$biof_risk)
+  
+
+#outliers?
+
+outlier_inds <- which(lake_biofoul_df1$mean_biof_risk %in% boxplot.stats(lake_biofoul_df1$mean_biof_risk)$out)
+
+outlier_data <- lake_biofoul_df1[outlier_inds,]
+
+lakes <- read_sf("C:/Users/allis/OneDrive/Post-doc/big_data/floating_solar/Northeast_NHD_Alison")
+lakes_selected <- lakes %>%
+  filter(Suitabl_FP ==1)
+
+outlier_data_lakes <- left_join(outlier_data,lakes_selected)
+outlier_data_lakes$energy_scaled <- scale(outlier_data_lakes$year1_ener)[,1]
+
+outlier_data_lakes <- outlier_data_lakes %>%
+  arrange((mean_biof_risk))
+
+png("figures/biofouling_risk_outliers.png", height = 9, width = 11, units = "in",res=300)
+
+ggplot()+
+  geom_sf(data = NE_pro)+
+  theme_classic(base_size = 15)+
+  geom_point(data = outlier_data_lakes, aes(x = water_lon, y = water_lat, col = mean_biof_risk_scaled, size = energy_scaled), alpha = 0.5)+
+  scale_color_viridis(option="inferno",limits = c(0,30))+
+  ylab("")+
+  xlab("")+
+  scale_size(guide="none")
+#scale_color_gsea(reverse = TRUE, limits = c(-19,19))
+
+dev.off()
+
+
+
+
+# plot_data <- only_selected_lakes %>%
+#   arrange((sum_biofoul_risk))%>%
+#   filter(sum_biofoul_risk!=0)
+# 
+# png("figures/sum_biofouling_solar_overlay.png", height = 12, width = 12, units = "in",res=300)
+# 
+# ggplot()+
+#   geom_sf(data = NE_pro)+
+#   theme_void()+
+#   geom_point(data = plot_data, aes(x = water_lon, y = water_lat, color = sum_biofoul_risk, size = year1_ener))+
+#   scale_color_viridis()
+# 
+# dev.off()
+# 
+# ggplot(data = plot_data, aes(x = (year1_ener), y = (sum_biofoul_risk)))+
+#   geom_point()
+# 
+
+
 
 
 
 #### comparisons ####
+library(rstan)
+
+load("data_outputs/lake_biofoul_risk_df.RData")
+load("data_outputs/lake_risk_df.RData")
+
+data <- read.csv("data_outputs/final_analysis_data_n291.csv")
+
+lakes <- read_sf("C:/Users/allis/OneDrive/Post-doc/big_data/floating_solar/Northeast_NHD_Alison")
+
+selected_lakes <- lakes %>%
+  filter(Suitabl_FP ==1)
+
+all_data_biof <- left_join(selected_lakes,lake_biofoul_df1)
+all_data <- left_join(all_data_biof,lake_risk_df)
+
+all_data_ranked <- data.frame(Water_ID = all_data$Water_ID,
+                              VI_value = all_data$mean_risk_scaled,
+                              VI_rank = rank(all_data$mean_risk_scaled),
+                              biof_rank = rank(all_data$mean_biof_risk_scaled),
+                              water_quality = all_data$Biodiversi,
+                              social_value = all_data$Social_B_1)
+
+all_data_ranked <- all_data_ranked %>%
+  arrange(VI_rank)
+
+save(all_data_ranked, file = "data/all_data_model.RData")
+load("data/all_data_model.RData")
+
+scen_mod_data <- list(N = length(all_data_ranked$Water_ID),
+                 n_WQ = as.integer(2),
+                 n_SOC = as.integer(2),
+                 VI_value = all_data_ranked$VI_value,
+                 WQ_value = all_data_ranked$water_quality+1,
+                 SOC_value = all_data_ranked$social_value+1)
+
+
+
+scen_mod_fit <- stan(file = "models/scenario_comparison_model.stan",
+                   data = scen_mod_data)
+
+save(scen_mod_fit, file = "mod_outputs/scen_mod_fit.RData")
+load("mod_outputs/scen_mod_fit.RData")
+
+summary(scen_mod_fit)
+
+library(shinystan)
+launch_shinystan(scen_mod_fit)
+
+draws <- as.data.frame(scen_mod_fit)
+
+#lakes have both WQ and SOC value
+WQ_SOC <- draws$`WQ_intercept[2]`+ draws$`SOC_intercept[2]`
+WQ_noSOC <- draws$`WQ_intercept[2]`+ draws$`SOC_intercept[1]`
+SOC_noWQ <- draws$`WQ_intercept[1]`+ draws$`SOC_intercept[2]`
+
+#high probability density interval
+#library(rethinking)
+
+comp_plot_data1 <- data.frame(scenario = c("Freshwater & Social","Freshwater Only","Social Only"),
+                              mean_VI = c(mean(WQ_SOC),mean(WQ_noSOC),mean(SOC_noWQ)),
+                              hpdi_u = c(HPDI(WQ_SOC, prob = 0.9)[2],HPDI(WQ_noSOC, prob = 0.9)[2],HPDI(SOC_noWQ, prob = 0.9)[2]),
+                              hpdi_l = c(HPDI(WQ_SOC, prob = 0.9)[1],HPDI(WQ_noSOC, prob = 0.9)[1],HPDI(SOC_noWQ, prob = 0.9)[1]))
+
+png("figures/scenario_comparison_plot.png", height = 10, width = 10, units="in", res = 300)
+
+ggplot(comp_plot_data1, aes(x=scenario, y = mean_VI))+
+  geom_errorbar(aes(ymin=hpdi_l,ymax=hpdi_u), width = 0.1, size = 1)+
+  geom_point(size = 3, shape = 21, fill = "white")+
+  geom_hline(aes(yintercept=0), linetype = "dashed", col = "blue")+
+  theme_classic(base_size = 18)+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1,hjust = 1))+
+  scale_y_continuous(limits=c(-0.5,0.5))+
+  ylab("Mean Avian Risk")+
+  xlab("")
+  
+dev.off()
+
+#try violin plot
+
+comp_plot_data <- data.frame(WQ_SOC=WQ_SOC,
+                             WQ_noSOC=WQ_noSOC,
+                             SOC_noWQ=SOC_noWQ)
+
+comp_plot_data1 <- pivot_longer(comp_plot_data, names_to = "water_body_value", cols=1:3, values_to="draws")
+
+ggplot(comp_plot_data1, aes(x=water_body_value, y = draws))+
+  geom_violin()
+
 
 ggplot(data = plot_data, aes(x = (richness), y = (sum_biofoul_risk)))+
   geom_point() #high species richness does not necessarily indicate high biofouling risk
@@ -314,7 +781,7 @@ library(tidyverse)
 library(prioritizr)
 library(tmap)
 
-
+corr()
 
 #simple approach where lakes are selected based on two criteria:
 #first, starting with the lake that has the best energy/cost ratio - plot energy per unit cost

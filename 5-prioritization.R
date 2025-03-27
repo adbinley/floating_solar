@@ -96,13 +96,13 @@ writeRaster(current_zone_tr, "D:/floating_solar/data_outputs/current_zone_stack.
 writeRaster(solar_zone_tr, "D:/floating_solar/data_outputs/solar_zone_stack.tif", overwrite = T)
 
 
-# get absolute target values ----------------------------------------------
+# 4. Get absolute target values ----------------------------------------------
 
 #target is the total "abundance" of each species across the extent
 #idea is to try to preserve as close to this maximum value as possible
 
 #load raster stacks
-current_zone <- rast("D:/floating_solar/data_outputs/current_zone_stack.tif")
+current_zone <- rast("A:/floating_solar/data_outputs/current_zone_stack.tif")
 solar_zone <- rast("D:/floating_solar/data_outputs/solar_zone_stack.tif")
 
 #get sum across study extent for each species
@@ -114,6 +114,8 @@ VI_data_arr$abs_target <- abs_target$sum
 #filter out species out of range
  VI_data_arr1 <- VI_data_arr %>%
    filter(abs_target > 2.47)
+ 
+write.csv(VI_data_arr1, file = "data_outputs/final_analysis_data_n291.csv")
 
 #get indices for species removed
 keep_ind <- which(VI_data_arr$abs_target > 2.47)
@@ -134,6 +136,119 @@ solar_zone1 <- subset(solar_zone, keep_ind)
 
 writeRaster(current_zone1, "D:/floating_solar/data_outputs/current_zone_final.tif", overwrite=T)
 writeRaster(solar_zone1, "D:/floating_solar/data_outputs/solar_zone_final.tif", overwrite = T)
+
+
+# 5. Deal with overlapping MUs --------------------------------------------
+
+#new approach
+
+#create rasters of lakes and determine degree of overlap
+
+#lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
+lakes <- read_sf("C:/Users/allis/OneDrive/Post-doc/big_data/floating_solar/Northeast_NHD_Alison")
+lakes1 <- lakes %>%
+  filter(Suitabl_FP ==1)
+rm(lakes)
+
+#using current zone raster to get raster dimensions and crs
+current_zone <- rast("A:/floating_solar/data_outputs/current_zone_final.tif")
+
+#create raster of 1s
+pu_raster <- rast(
+  nrows = 409, ncols = 789,
+  xmin = -7470586, xmax = -5132931, ymin = 4064160, ymax = 5275949, vals = 1
+)
+
+#project lakes, rasterize 
+lake_raster <- lakes1 %>%
+  vect()%>%
+  project(crs(current_zone))%>%
+  terra::rasterize(pu_raster, field = 1, touches=T)
+
+lake_proj <- lakes1 %>%
+  vect()%>%
+  project(crs(current_zone))
+
+pdf("figures/lake_raster.pdf")
+plot(lake_raster)
+plot(lake_proj, add=T, lwd=0.02)
+dev.off()
+
+# create a separate layer for each sea mount
+lake_stack <-
+  lake_raster %>%
+  terra::patches() %>%
+  as("Raster") %>%
+  {lapply(sort(unique(values(.))), function(i) {
+    raster::Which(. == i)
+  })} %>%
+  raster::stack() %>%
+  setNames(paste0("mu_", seq_len(raster::nlayers(.))))
+
+#ugh
+
+#old approach - too many dimensions, not enough computing power
+
+#several of the buffered lakes overlap
+#to avoid double counting in overlapping regions, we treat these as a potential management unit that can be selected
+
+#lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
+# lakes <- read_sf("C:/Users/allis/OneDrive/Post-doc/big_data/floating_solar/Northeast_NHD_Alison")
+# lakes1 <- lakes %>%
+#   filter(Suitabl_FP ==1)
+# buf <- 1000
+# lake_buffer <- st_buffer(lakes1,buf)
+# 
+# #get indices for which lakes overlap
+# lake_overlap <- st_overlaps(lake_buffer)
+# 
+# #test to see if working properly
+# # i <- 8
+# # plot(st_geometry((lake_buffer[lake_overlap[[i]],])))
+# # plot(st_geometry(lake_buffer[i,]), col="red",add=T)
+# 
+# #calculate the different combinations that overlap with each lake
+# #note that these DO NOT necessarily overlap with one another
+# #only with the original indexed lake
+# powerset <- function(set) {
+#   n <- length(set)
+#   result <- list()
+#   # Iterate over all possible subset sizes
+#   for (k in 1:n) {
+#     # Generate combinations of size k
+#     result <- c(result, combn(set, k, simplify = FALSE))
+#   }
+#   return(result)
+# }
+# 
+# #loop through all lakes and find all combinations
+# 
+# combos_list <- list()
+# 
+# for(i in 1:length(lake_overlap)){
+# #for(i in 18:21){ #- testing to see how 1s and zeros are working
+# 
+#   #if the me does not overlap with any lakes, skip to next
+#     if(length(lake_overlap[[i]])==0) {
+#       next
+#     }
+# 
+#     #combn() does something weird if there is only one mu overlapping, corrected here
+#            ifelse(length(lake_overlap[[i]])==1, powerset_results <- lake_overlap[[i]],
+#                   powerset_results <- powerset(lake_overlap[[i]]))
+# 
+#     #add original indexed lake into the vector
+#     powerset_results <- lapply(powerset_results, function(x) c(x,i))
+# 
+#     combos_list <- c(combos_list,powerset_results)
+# 
+# 
+# }
+
+
+
+#if all are selected, non of the component buffers can be also individually selected
+#set linear penalties to prevent this
 
 
 # prioritization ----------------------------------------------------------
