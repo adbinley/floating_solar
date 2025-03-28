@@ -294,7 +294,8 @@ dev.off()
 data <- read.csv("data_outputs/final_analysis_data_n291.csv")
 
 
-lakes <- read_sf("A:/floating_solar/Northeast_NHD_Alison")
+lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
+#lakes <- read_sf("C:/Users/adb299/OneDrive/Post-doc/big_data/floating_solar/Northeast_NHD_Alison")
 
 #suitable lakes only, and their percent coverage
 lake_coverage <- lakes %>%
@@ -316,7 +317,7 @@ for(s in 1:length(data$species_code)){
   
   sp <- data$species_code[s]
   
-  load(paste0("A:/floating_solar/data_outputs/",sp,"_lake_abd_weight.RData")) #this is sum, mean is also available
+  load(paste0("D:/floating_solar/data_outputs/",sp,"_lake_abd_weight.RData")) #this is sum, mean is also available
   
   lake_bird_data1 <- lake_bird_data %>%
     filter(Water_ID %in% lake_coverage$Water_ID)
@@ -390,8 +391,6 @@ for(l in 1:length(lake_exp_df$Water_ID)){
   
 }
 
-lake_risk_df_weighted <- data.frame(Water_ID = lake_exp_df$Water_ID,
-                                    w_mean_risk = w_mean_risk)
 
 save(lake_risk_df_weighted, file = "data_outputs/lake_risk_df_weighted.RData")
 
