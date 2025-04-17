@@ -1,7 +1,7 @@
 species_code,scientific_name,common_name.x,group,order,family,Song_etal,CCS.max,habitat_score,habitat_comment,bodymass,predicted_defecation_rate,est_axial_length,wingloading_quantile,axiallength_quantile,CCS_quantile,vis_acuity_risk,exposure,exposure_scaled,VI,exposure_scaled_2,risk,reduction_factor,abs_target
 acafly,Empidonax virescens,Acadian Flycatcher,landbird,Passeriformes,Tyrannidae,0,10,1,,12.6,0.848038299,7.769267084,1,2,3,4,2230.494757,1.261546449,7.5,0.065386612,0.490399593,0.861133603,2529.045186
 aldfly,Empidonax alnorum,Alder Flycatcher,landbird,Passeriformes,Tyrannidae,0,8,1,,12.7,0.85357696,6.148575017,1,1,2,5,3845.160156,1.450881125,6,0.112720281,0.676321688,0.870850202,3468.21714
-wooduc,Aix sponsa,Wood Duck,waterfowl,Anseriformes,Anatidae,0,7,1,,657.59,22.02140488,15.51365241,5,5,1,1,7373.014562,1.864555173,12,0.216138793,2.593665518,0.831983806,4160.847522
+wooduc,Aix sponsa,Wood Duck,waterfowl,Anseriformes,Anatidae,0,7,4,,657.59,22.02140488,15.51365241,5,5,1,1,7373.014562,1.864555173,12,0.216138793,2.593665518,0.831983806,4160.847522
 ameavo,Recurvirostra americana,American Avocet,shorebird,Charadriiformes,Recurvirostridae,0,11,5,,304.48,11.68072599,9.210968905,3.5,3,4,3,47.11751096,1.00552497,39,0.001381243,0.053868462,0.65708502,30.64871908
 norpin,Anas acuta,Northern Pintail,waterfowl,Anseriformes,Anatidae,1,13,5,completely absent in FPV (Song et al. 2024),944.62,29.67447453,11.92746774,5,4,5,2,485.482867,1.056927424,70,0.014231856,0.996229915,0.456275304,190.5834785
 amecro,Corvus brachyrhynchos,American Crow,landbird,Passeriformes,Corvidae,0,8,1,,448.76,16.07654403,9.19032702,4,3,1,3,4208.666327,1.493505636,3.5,0.123376409,0.431817432,0.887044534,3129.569505
@@ -257,7 +257,7 @@ sora,Porzana carolina,Sora,waterbird,Gruiformes,Rallidae,0,9,3,,74.8,3.6763568,1
 tuftit,Baeolophus bicolor,Tufted Titmouse,landbird,Passeriformes,Paridae,0,7,1,,21.6,1.321851885,7.86580394,2,2,1,4,2857.286812,1.335043702,3,0.083760925,0.251282776,0.890283401,2156.384691
 kinrai4,Rallus elegans,King Rail,waterbird,Gruiformes,Rallidae,0,15,3,,313.31,11.95897557,6.627453324,4,1,5,5,277.7734776,1.032571548,67.5,0.008142887,0.549644871,0.472469636,344.2998336
 turvul,Cathartes aura,Turkey Vulture,landbird,Cathartiformes,Cathartidae,0,6,1,,1518.24,43.86240696,22.67761567,4,5,1,1,557.8003017,1.065407322,2.5,0.01635183,0.040879576,0.893522267,496.4065751
-uplsan,Bartramia longicauda,Upland Sandpiper,shorebird,Charadriiformes,Scolopacidae,0,11,1,,158.92,6.838013615,7.881326899,3.535714286,2,4,4,43.10470102,1.005054431,15.07142857,0.001263608,0.019044373,0.812087912,22.74103732
+uplsan,Bartramia longicauda,Upland Sandpiper,shorebird,Charadriiformes,Scolopacidae,0,11,5,,158.92,6.838013615,7.881326899,3.535714286,2,4,4,43.10470102,1.005054431,15.07142857,0.001263608,0.019044373,0.812087912,22.74103732
 veery,Catharus fuscescens,Veery,landbird,Passeriformes,Turdidae,0,11,1,,31.9,1.822349278,5.977227552,2,1,4,5,14763.66421,2.731178225,14,0.432794556,6.059123787,0.81902834,9448.223931
 vesspa,Pooecetes gramineus,Vesper Sparrow,landbird,Passeriformes,Passerellidae,0,11,1,,25.68,1.524268825,6.141142038,3,1,4,5,207.6983547,1.024354582,16,0.006088645,0.097418328,0.806072874,119.1323941
 virrai,Rallus limicola,Virginia Rail,waterbird,Gruiformes,Rallidae,0,10,3,,84.1,4.048826335,9.862612255,3,3,3,3,14591.29853,2.71096673,27,0.427741683,11.54902543,0.734817814,5405.632222
