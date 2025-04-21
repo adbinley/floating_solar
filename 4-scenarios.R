@@ -396,10 +396,14 @@ save(lake_risk_df_weighted, file = "data_outputs/lake_risk_df_weighted.RData")
 
 #### start here ####
 load("data_outputs/lake_risk_df.RData")
+load("data_outputs/lake_risk_df_weighted.RData")
+
+lake_risk_df <- lake_risk_df_weighted
 
 data <- read.csv("data_outputs/final_analysis_data_n291.csv")
 
 lakes <- read_sf("A:/floating_solar/Northeast_NHD_Alison")
+lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
 
 selected_lakes <- lakes %>%
   filter(Suitabl_FP ==1)
@@ -412,7 +416,7 @@ selected_lakes <- lakes %>%
 
 all_data2 <- left_join(selected_lakes,lake_risk_df)
 
-all_data2$bird_rank <- rank(-all_data2$mean_risk, ties.method = "first")
+all_data2$bird_rank <- rank(-all_data2$w_mean_risk, ties.method = "first")
 all_data2$energy_scaled <- scale(all_data2$year1_ener)[,1]
 
 cor(all_data2$energy_scaled,all_data2$mean_risk_scaled)
