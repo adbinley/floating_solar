@@ -391,6 +391,8 @@ for(l in 1:length(lake_exp_df$Water_ID)){
   
 }
 
+lake_risk_df_weighted <- data.frame(Water_ID = lake_exp_df$Water_ID,
+                                    w_mean_risk = w_mean_risk)
 
 save(lake_risk_df_weighted, file = "data_outputs/lake_risk_df_weighted.RData")
 
@@ -418,8 +420,9 @@ all_data2 <- left_join(selected_lakes,lake_risk_df)
 
 all_data2$bird_rank <- rank(-all_data2$w_mean_risk, ties.method = "first")
 all_data2$energy_scaled <- scale(all_data2$year1_ener)[,1]
+all_data2$w_mean_risk_scaled <- scale(all_data2$w_mean_risk)[,1]
 
-cor(all_data2$energy_scaled,all_data2$mean_risk_scaled)
+cor(all_data2$energy_scaled,all_data2$w_mean_risk_scaled)
 
 plot_data <- all_data2 %>%
   arrange((mean_risk))
