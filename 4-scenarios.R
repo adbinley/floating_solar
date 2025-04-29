@@ -7,9 +7,15 @@ library(stringr)
 library(viridis)
 library(scales)
 library(ggsci)
+library(RColorBrewer)
 
 #map data
-state_lines <- st_read("A:/maps/NA_politicalboundaries_shapefile/PoliticalBoundaries_Shapefile/NA_PoliticalDivisions/data/bound_p/boundaries_p_2021_v3.shp")
+state_lines <- st_read("D:/maps/NA_politicalboundaries_shapefile/PoliticalBoundaries_Shapefile/NA_PoliticalDivisions/data/bound_p/boundaries_p_2021_v3.shp")
+
+waterbodies <- st_read("D:maps/USA_Detailed_Water_Bodies/USA_Detailed_Water_Bodies.shp")
+
+GL <- waterbodies %>%
+  filter(NAME %in% c("Lake Erie","Lake Ontario"))
 
 NE <- state_lines %>%
   filter(NAME_En %in% c("Maine","New Hampshire","Vermont","Massachusetts","Rhode Island","Connecticut","New York","Pennsylvania","New Jersey","Delaware","Maryland","West Virginia","Virginia","District of Columbia"))%>%
@@ -17,12 +23,22 @@ NE <- state_lines %>%
 
 NE_pro <- st_transform(NE, crs = st_crs(4326))
 
+GL_pro <-  st_transform(GL, crs = st_crs(4326))
+
+GL_crop <- st_crop(GL_pro,st_bbox(NE_pro))
+
+plot(st_geometry(NE_pro))
+plot(st_geometry(GL_crop), add=T, col="#4682B4")
+
+
+
 #### species vulnerability ####
 #1.: which species have the highest vulnerability to floating solar based on our equation?
 
 
 #this is done, skip to bottom now for final data
-data <- read.csv("data/final_analysis_data.csv")
+#data <- read.csv("data/final_analysis_data.csv")
+data <- read.csv("data_outputs/final_analysis_data_n291.csv")
 
 #first reverse the quantiles for axial length such that high values been smaller axial length and greater risk
 data <- data %>%
@@ -75,6 +91,7 @@ data$exposure <- exposure_vector
 #                                 0))
 
 #new - scaling exposure between 0 and 1
+#remove? is this still valid?
 data <- data %>%
 mutate(exposure_scaled_2 = scales::rescale(exposure, to = c(0,1)))
 
@@ -93,14 +110,25 @@ data$VI = ((data$wingloading_quantile + data$vis_acuity_risk)/2) * data$CCS_quan
 save(data, file = "data_outputs/final_analysis_data.RData")
 write.csv(data, file = "data_outputs/final_analysis_data.csv")
 
-#manually removing species out of range and readjusting HS based on Song et al. 2024
-data <- read.csv("data_outputs/final_analysis_data_n291.csv")
-
-#recalculate VI
-data$VI = ((data$wingloading_quantile + data$vis_acuity_risk)/2) * data$CCS_quantile * data$habitat_score
 write.csv(data, "data_outputs/final_analysis_data_n291.csv")
 
+#most vulnerable species
+
+most_vulnerable <- data %>%
+  arrange(desc(VI)) %>%
+  head(n=9)
+
+mean(most_vulnerable$wingloading_quantile)
+sd(most_vulnerable$wingloading_quantile)/3
+mean(most_vulnerable$vis_acuity_risk)
+sd(most_vulnerable$vis_acuity_risk)/3
+mean(most_vulnerable$CCS_quantile)
+sd(most_vulnerable$CCS_quantile)/3
+mean(most_vulnerable$habitat_score)
+sd(most_vulnerable$habitat_score)/3
+
 ####quantify uncertainty in HS####
+library(rethinking)
 
 data <- read.csv("data_outputs/final_analysis_data_n291.csv")
 
@@ -137,6 +165,8 @@ for(s in 1:length(data$species_code)){
 data_arr <- data %>%
   arrange(desc(VI))
 
+median(data_arr$VI)
+
 
 rows_per_batch <- 75
 
@@ -149,12 +179,11 @@ for(s in seq(1, 291, by = rows_per_batch)){
   
   VI_plot <- ggplot(subset_df, aes(x=reorder(as.factor(common_name.x),VI),y=VI))+
     geom_point()+
-    geom_hline(yintercept = mean(data_arr$VI), col="blue",linetype = "dashed")+
+    geom_hline(yintercept = 10.5, col="blue",linetype = "dashed")+
     geom_point(aes(x=reorder(as.factor(common_name.x),VI), y=median_VI_un), col="grey",alpha = 0.3)+
     geom_errorbar(aes(x=as.factor(common_name.x),ymin=hdi_l,ymax=hdi_u), col="grey", alpha = 0.3)+
     coord_flip()+
-    #ylab("mean slope (90% CI)")+
-    #ggtitle("Ecoregion Average Slope")+
+    xlab("")+
     theme_classic(base_size = 8)
   
   print(VI_plot)
@@ -163,12 +192,24 @@ for(s in seq(1, 291, by = rows_per_batch)){
 
 dev.off()
 
+#MSE
+mse <- sum((data$VI - data$median_VI_un)^2)/nrow(data)
+sqrt(mse)
+
+#how many underestimates
+dif <- data$VI - data$median_VI_un
+sum(dif>=0)
+sum(dif<=0)
+
 #spider/radar charts
 library(fmsb)
 
 radar_data <- data %>%
   filter(species_code %in% c("horgre","wessan","osprey","mallar3","leabit","marwre"))%>%
   select(c("common_name.x","VI","vis_acuity_risk","CCS_quantile","wingloading_quantile","habitat_score"))
+
+radar_data <- radar_data %>%
+  arrange(common_name.x)
 
 min <- c("min",1,1,1,1,1)
 max <- c("max",5,5,5,5,5)
@@ -181,7 +222,7 @@ radar_data[,3:6] <- sapply(radar_data[,3:6],as.numeric)
 
 # Define colors and titles
 colors <- c("#00AFBB", "#E7B800", "#FC4E07","#660000","#003300","#000066")
-titles <- c("Horned Grebe (VI: 125.0)","Least Bittern (VI: 26.4)","Mallard (VI: 14.0)","Marsh Wren (VI: 5)","Osprey (VI: 7.5)","Western Sandpiper (VI: 56.5)")
+titles <- c("Horned Grebe (VI: 125.0)","Least Bittern (VI: 26.4)","Mallard (VI: 12.0)","Marsh Wren (VI: 5)","Osprey (VI: 7.5)","Western Sandpiper (VI: 94.2)")
 
 # Reduce plot margin using par()
 # Split the screen in 3 parts
@@ -190,7 +231,7 @@ par(mfrow = c(2,3))
 
 # Create the radar chart
 create_beautiful_radarchart <- function(data, color = "#00AFBB", 
-                                        vlabels = colnames(data), vlcex = 1.2,
+                                        vlabels = colnames(data), vlcex = 1.5,
                                         caxislabels = NULL, title = NULL, ...){
   radarchart(
     data, axistype = 1,
@@ -221,17 +262,17 @@ par(op)
 
 dev.off()
 
-mean(data_arr$VI)
-sd(data_arr$VI)
-top10 <- data_arr[1:10,]
-mean(top10$habitat_score)
-sd(top10$habitat_score)/sqrt(10)
-mean(top10$vis_acuity_risk)
-sd(top10$vis_acuity_risk)/sqrt(10)
-mean(top10$wingloading_quantile)
-sd(top10$wingloading_quantile)/sqrt(10)
-mean(top10$CCS_quantile)
-sd(top10$CCS_quantile)/sqrt(10)
+# mean(data_arr$VI)
+# sd(data_arr$VI)
+# top10 <- data_arr[1:10,]
+# mean(top10$habitat_score)
+# sd(top10$habitat_score)/sqrt(10)
+# mean(top10$vis_acuity_risk)
+# sd(top10$vis_acuity_risk)/sqrt(10)
+# mean(top10$wingloading_quantile)
+# sd(top10$wingloading_quantile)/sqrt(10)
+# mean(top10$CCS_quantile)
+# sd(top10$CCS_quantile)/sqrt(10)
 
 par(mfrow = c(1,1))
 
@@ -397,18 +438,21 @@ lake_risk_df_weighted <- data.frame(Water_ID = lake_exp_df$Water_ID,
 save(lake_risk_df_weighted, file = "data_outputs/lake_risk_df_weighted.RData")
 
 #### start here ####
-load("data_outputs/lake_risk_df.RData")
+#load("data_outputs/lake_risk_df.RData")
 load("data_outputs/lake_risk_df_weighted.RData")
 
 lake_risk_df <- lake_risk_df_weighted
+lake_risk_df$quantile <- ntile(x=lake_risk_df$w_mean_risk, n=9)
 
-data <- read.csv("data_outputs/final_analysis_data_n291.csv")
+
+#data <- read.csv("data_outputs/final_analysis_data_n291.csv")
 
 lakes <- read_sf("A:/floating_solar/Northeast_NHD_Alison")
 lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
 
 selected_lakes <- lakes %>%
   filter(Suitabl_FP ==1)
+rm(lakes)
 
 #load("A:/floating_solar/data_outputs/all_importance_data_updated.RData") 
 
@@ -422,42 +466,63 @@ all_data2$bird_rank <- rank(-all_data2$w_mean_risk, ties.method = "first")
 all_data2$energy_scaled <- scale(all_data2$year1_ener)[,1]
 all_data2$w_mean_risk_scaled <- scale(all_data2$w_mean_risk)[,1]
 
-cor(all_data2$energy_scaled,all_data2$w_mean_risk_scaled)
+save(all_data2, file = "data_outputs/mapping_data.RData")
+
+cor(all_data2$energy_scaled,all_data2$w_mean_risk_scaled, method = "spearman")
+
+png("figures/correlation_plot.png", height = 9, width = 9, units = "in",res=300)
+
+ggplot(all_data2, aes(energy_scaled,w_mean_risk_scaled))+
+  geom_point()+
+  theme_classic(base_size = 18)+
+  ggtitle("Spearman's correlation: -0.039")+
+  xlab("One Year Energy Production (scaled)")+
+  ylab("Weighted Mean Risk (scaled)")
+
+dev.off()
 
 plot_data <- all_data2 %>%
-  arrange((mean_risk))
+  arrange((w_mean_risk))
 # 
 # plot_data2 <- plot_data %>%
 #   filter(mean_risk_scaled>0)
 
-png("figures/risk_solar_overlay1.png", height = 9, width = 11, units = "in",res=300)
+cols <- brewer.pal(9,"YlOrRd")
+
+#not including richness
+png("figures/risk_solar_overlay2.png", height = 9, width = 11, units = "in",res=300)
 
 ggplot()+
   geom_sf(data = NE_pro)+
+  geom_sf(data=GL_crop, fill ="#4682B4")+
   theme_classic(base_size = 15)+
-  geom_point(data = plot_data, aes(x = water_lon, y = water_lat, col = mean_risk_scaled, size = energy_scaled))+
-  scale_color_viridis(option="inferno",limits = c(-3,19))+
+  geom_point(data = plot_data, aes(x = water_lon, y = water_lat, col = as.factor(quantile), size = energy_scaled))+
+  #scale_color_viridis(option="inferno",limits = c(-3,19))+
+  #scale_fill_brewer(palette = "YlOrRd")+
+  scale_color_manual(values=cols)+
   ylab("")+
   xlab("")+
-  scale_size(guide="none")
+  labs(color = "Risk")+
+  scale_size(guide="none")+
+  guides(color = guide_legend(override.aes = list(size = 5), reverse = T ) )
   #scale_color_gsea(reverse = TRUE, limits = c(-19,19))
 
 dev.off()
 
-
-plot_data2 <- plot_data %>%
-  arrange(-energy_scaled)
-
-png("figures/energy_risk_corr.png", height = 6, width = 8, units = "in",res=300)
-
-ggplot(plot_data, aes(x=energy_scaled, y=mean_risk_scaled) ) +
-  geom_hex() +
-  scale_fill_continuous(type = "viridis") +
-  theme_bw(base_size = 20)+
-  xlab("energy")+
-  ylab("risk")
-
-dev.off()
+#using above plot now instead
+# plot_data2 <- plot_data %>%
+#   arrange(-energy_scaled)
+# 
+# png("figures/energy_risk_corr.png", height = 6, width = 8, units = "in",res=300)
+# 
+# ggplot(plot_data, aes(x=energy_scaled, y=mean_risk_scaled) ) +
+#   geom_hex() +
+#   scale_fill_continuous(type = "viridis") +
+#   theme_bw(base_size = 20)+
+#   xlab("energy")+
+#   ylab("risk")
+# 
+# dev.off()
 
 
 ggplot(data = plot_data, aes(x = energy_scaled, y = mean_risk_scaled)) +
@@ -501,7 +566,7 @@ biofoul_data <- data %>%
 
 #scale risk between 0 and 1, as percentage of max
 biofoul_data$biofoul_risk <- rescale(biofoul_data$predicted_defecation_rate, to=c(0,1))
-lakes <- read_sf("A:/floating_solar/Northeast_NHD_Alison")
+lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
 
 #suitable lakes only, and their percent coverage
 lake_coverage <- lakes %>%
@@ -517,7 +582,7 @@ for(s in 1:length(biofoul_data$species_code)){
   
   sp <- biofoul_data$species_code[s]
   
-  load(paste0("A:/floating_solar/data_outputs/",sp,"_lake_abd_weight.RData")) #this is sum, mean is also available
+  load(paste0("D:/floating_solar/data_outputs/",sp,"_lake_abd_weight.RData")) #this is sum, mean is also available
   
   lake_bird_data1 <- lake_bird_data %>%
     filter(Water_ID %in% lake_coverage$Water_ID)
@@ -552,30 +617,33 @@ for(s in 1:length(biofoul_data$species_code)){
   
 }
 
-save(lake_biofoul_df, file="data_outputs/lake_biofoul_df.RData")
-load("data_outputs/lake_biofoul_df.RData")
+save(lake_biofoul_df, file="data_outputs/lake_biofoul_df_updated.RData")
+load("data_outputs/lake_biofoul_df_updated.RData")
 
 
 lake_biofoul_df1 <- data.frame(Water_ID = lake_biofoul_df$Water_ID,
                            mean_risk = rowMeans(lake_biofoul_df[,2:ncol(lake_biofoul_df)]),
                            sum_risk = rowSums(lake_biofoul_df[,2:ncol(lake_biofoul_df)]))
 
-lake_biofoul_df1$mean_risk_scaled <- scale(lake_biofoul_df1$mean_risk)[,1]
+#lake_biofoul_df1$mean_risk_scaled <- scale(lake_biofoul_df1$mean_risk)[,1]
+lake_biofoul_df1$biofouling_quantile <- ntile(lake_biofoul_df1$sum_risk,9)
 
-colnames(lake_biofoul_df1) <- c("Water_ID","mean_biof_risk","sum_biof_risk","mean_biof_risk_scaled")
+colnames(lake_biofoul_df1) <- c("Water_ID","mean_biof_risk","sum_biof_risk","biof_risk_quantile")
 
-save(lake_biofoul_df1, file = "data_outputs/lake_biofoul_risk_df.RData")
+save(lake_biofoul_df1, file = "data_outputs/lake_biofoul_risk_df_updated.RData")
 
 ####start here####
 
-load("data_outputs/lake_biofoul_risk_df.RData")
+load("data_outputs/lake_biofoul_risk_df_updated.RData")
 
 data <- read.csv("data_outputs/final_analysis_data_n291.csv")
 
-lakes <- read_sf("A:/floating_solar/Northeast_NHD_Alison")
+lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
 
 selected_lakes <- lakes %>%
   filter(Suitabl_FP ==1)
+
+rm(lakes)
 
 all_data_biof <- left_join(selected_lakes,lake_biofoul_df1)
 
@@ -585,19 +653,26 @@ all_data_biof$energy_scaled <- scale(all_data_biof$year1_ener)[,1]
 plot_data <- all_data_biof %>%
   arrange((mean_biof_risk))
 
-all_data_ranked <- data.frame(Water_ID = plot_data$Water_ID,
-                              bird_rank = rank(all_data_biof$mea))
+# all_data_ranked <- data.frame(Water_ID = plot_data$Water_ID,
+#                               bird_rank = rank(all_data_biof$mea))
 
-png("figures/biofouling_risk.png", height = 6, width = 8, units = "in",res=300)
+cols <- brewer.pal(9,"YlGnBu")
+cols <- brewer.pal(9,"YlOrRd")
+
+png("figures/biofouling_risk_red.png", height = 6, width = 8, units = "in",res=300)
 
 ggplot()+
   geom_sf(data = NE_pro)+
+  geom_sf(data=GL_crop, fill ="#4682B4")+
   theme_classic(base_size = 15)+
-  geom_point(data = plot_data, aes(x = water_lon, y = water_lat, col = mean_biof_risk_scaled, size = energy_scaled))+
-  scale_color_viridis(option="inferno",limits = c(-5,30))+
+  geom_point(data = plot_data, aes(x = water_lon, y = water_lat, col = as.factor(biof_risk_quantile), size = energy_scaled))+
+  #scale_color_viridis(option="inferno",limits = c(-5,30))+
+  scale_color_manual(values=cols)+
   ylab("")+
   xlab("")+
-  scale_size(guide="none")
+  labs(color = "Biofouling Risk")+
+  scale_size(guide="none")+
+  guides(color = guide_legend(override.aes = list(size = 5), reverse = T ) )
 #scale_color_gsea(reverse = TRUE, limits = c(-19,19))
 
 dev.off()
