@@ -659,7 +659,7 @@ plot_data <- all_data_biof %>%
 cols <- brewer.pal(9,"YlGnBu")
 cols <- brewer.pal(9,"YlOrRd")
 
-png("figures/biofouling_risk_red.png", height = 6, width = 8, units = "in",res=300)
+png("figures/biofouling_risk_blue.png", height = 9, width = 11, units = "in",res=300)
 
 ggplot()+
   geom_sf(data = NE_pro)+
@@ -679,12 +679,14 @@ dev.off()
 
 #is biofouling risk simply high where risk to avian biodiversity is high?
 
+load("data_outputs/mapping_data.RData") #all_data2
+
 biof_risk <- data.frame(Water_ID = all_data_biof$Water_ID,
-                              biof_risk = all_data_biof$mean_biof_risk_scaled,
+                              biof_risk = scale(all_data_biof$mean_biof_risk),
                               energy = all_data2$energy_scaled)
 
 VI_risk <- data.frame(Water_ID = all_data2$Water_ID,
-                      VI_risk = all_data2$mean_risk_scaled)
+                      VI_risk = all_data2$w_mean_risk_scaled)
 
 risk_comparison <- left_join(biof_risk,VI_risk)
 
@@ -694,15 +696,19 @@ risk_comparison$energy_rank <- rank(-risk_comparison$energy, ties.method = "firs
 
 risk_comparison <- risk_comparison %>%
   arrange(energy)
+
 png("figures/corr_biofoul_VI_risk.png",height = 9, width = 9, units = "in",res=300)
 ggplot(risk_comparison, aes(VI_risk,biof_risk))+
   geom_point(aes(col = (energy)))+
   geom_abline(slope=1, col="red",linetype="dashed")+
   theme_classic(base_size = 20)+
+  ylab("Biofouling Risk (scaled)")+
+  xlab("Avian Biodiversity Risk (scaled)")+
+  labs(color = "Energy (scaled)")+
   scale_color_viridis(option="inferno")
 dev.off()
 
-cor(risk_comparison$VI_risk,risk_comparison$biof_risk)
+cor(risk_comparison$VI_risk,risk_comparison$biof_risk, method = "spearman")
   
 
 #outliers?
@@ -764,21 +770,26 @@ dev.off()
 library(rstan)
 
 load("data_outputs/lake_biofoul_risk_df.RData")
-load("data_outputs/lake_risk_df.RData")
+load("data_outputs/lake_risk_df_weighted.RData")
 
 data <- read.csv("data_outputs/final_analysis_data_n291.csv")
 
-lakes <- read_sf("C:/Users/allis/OneDrive/Post-doc/big_data/floating_solar/Northeast_NHD_Alison")
+lakes <- read_sf("A:/Users/allis/OneDrive/Post-doc/big_data/floating_solar/Northeast_NHD_Alison")
+lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
 
 selected_lakes <- lakes %>%
   filter(Suitabl_FP ==1)
+
+rm(lakes)
+
+lake_risk_df <- lake_risk_df_weighted
 
 all_data_biof <- left_join(selected_lakes,lake_biofoul_df1)
 all_data <- left_join(all_data_biof,lake_risk_df)
 
 all_data_ranked <- data.frame(Water_ID = all_data$Water_ID,
-                              VI_value = all_data$mean_risk_scaled,
-                              VI_rank = rank(all_data$mean_risk_scaled),
+                              VI_value = scale(all_data$w_mean_risk),
+                              VI_rank = rank(all_data$w_mean_risk),
                               biof_rank = rank(all_data$mean_biof_risk_scaled),
                               water_quality = all_data$Biodiversi,
                               social_value = all_data$Social_B_1)
