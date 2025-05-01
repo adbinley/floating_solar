@@ -767,14 +767,14 @@ dev.off()
 
 
 #### comparisons ####
-library(rstan)
+library(cmdstanr)
 
 load("data_outputs/lake_biofoul_risk_df.RData")
 load("data_outputs/lake_risk_df_weighted.RData")
 
 data <- read.csv("data_outputs/final_analysis_data_n291.csv")
 
-lakes <- read_sf("A:/Users/allis/OneDrive/Post-doc/big_data/floating_solar/Northeast_NHD_Alison")
+#lakes <- read_sf("A:/Users/allis/OneDrive/Post-doc/big_data/floating_solar/Northeast_NHD_Alison")
 lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
 
 selected_lakes <- lakes %>%
@@ -797,8 +797,10 @@ all_data_ranked <- data.frame(Water_ID = all_data$Water_ID,
 all_data_ranked <- all_data_ranked %>%
   arrange(VI_rank)
 
-save(all_data_ranked, file = "data/all_data_model.RData")
-load("data/all_data_model.RData")
+all_data_ranked1 <- all_data_ranked
+
+save(all_data_ranked, file = "data/all_data_model_updated.RData")
+load("data/all_data_model_updated.RData")
 
 scen_mod_data <- list(N = length(all_data_ranked$Water_ID),
                  n_WQ = as.integer(2),
@@ -808,32 +810,46 @@ scen_mod_data <- list(N = length(all_data_ranked$Water_ID),
                  SOC_value = all_data_ranked$social_value+1)
 
 
+# scen_mod_fit <- stan(file = "models/scenario_comparison_model.stan",
+#                    data = scen_mod_data)
 
-scen_mod_fit <- stan(file = "models/scenario_comparison_model.stan",
-                   data = scen_mod_data)
 
-save(scen_mod_fit, file = "mod_outputs/scen_mod_fit.RData")
-load("mod_outputs/scen_mod_fit.RData")
+scen_mod <- cmdstan_model(stan_file = "models/scenario_comparison_model.stan")
 
-summary(scen_mod_fit)
+scen_mod_fit <- scen_mod$sample(
+  data = scen_mod_data,
+  iter_warmup = 1000,
+  iter_sampling = 2000,
+  chains = 4,
+  parallel_chains = 4,
+  refresh = 10
+)
+
+
+# save(scen_mod_fit, file = "mod_outputs/scen_mod_fit.RData")
+scen_mod_fit$save_object(file = "mod_outputs/scen_mod_fit_updated.RDS")
+scen_mod_fit<- readRDS("mod_outputs/scen_mod_fit_updated.RDS")
+
+summary <- scen_mod_fit$summary()
 
 library(shinystan)
 launch_shinystan(scen_mod_fit)
 
-draws <- as.data.frame(scen_mod_fit)
+draws <- scen_mod_fit$draws(format = "df")
 
 #lakes have both WQ and SOC value
 WQ_SOC <- draws$`WQ_intercept[2]`+ draws$`SOC_intercept[2]`
 WQ_noSOC <- draws$`WQ_intercept[2]`+ draws$`SOC_intercept[1]`
 SOC_noWQ <- draws$`WQ_intercept[1]`+ draws$`SOC_intercept[2]`
+noSOC_noWQ <- draws$`WQ_intercept[1]`+ draws$`SOC_intercept[1]`
 
 #high probability density interval
-#library(rethinking)
+library(rethinking)
 
-comp_plot_data1 <- data.frame(scenario = c("Freshwater & Social","Freshwater Only","Social Only"),
-                              mean_VI = c(mean(WQ_SOC),mean(WQ_noSOC),mean(SOC_noWQ)),
-                              hpdi_u = c(HPDI(WQ_SOC, prob = 0.9)[2],HPDI(WQ_noSOC, prob = 0.9)[2],HPDI(SOC_noWQ, prob = 0.9)[2]),
-                              hpdi_l = c(HPDI(WQ_SOC, prob = 0.9)[1],HPDI(WQ_noSOC, prob = 0.9)[1],HPDI(SOC_noWQ, prob = 0.9)[1]))
+comp_plot_data1 <- data.frame(scenario = c("Freshwater & Social","Freshwater Only","Social Only","Neither"),
+                              mean_VI = c(mean(WQ_SOC),mean(WQ_noSOC),mean(SOC_noWQ),mean(noSOC_noWQ)),
+                              hpdi_u = c(HPDI(WQ_SOC, prob = 0.9)[2],HPDI(WQ_noSOC, prob = 0.9)[2],HPDI(SOC_noWQ, prob = 0.9)[2],HPDI(noSOC_noWQ, prob = 0.9)[2]),
+                              hpdi_l = c(HPDI(WQ_SOC, prob = 0.9)[1],HPDI(WQ_noSOC, prob = 0.9)[1],HPDI(SOC_noWQ, prob = 0.9)[1],HPDI(noSOC_noWQ, prob = 0.9)[1]))
 
 png("figures/scenario_comparison_plot.png", height = 10, width = 10, units="in", res = 300)
 
@@ -863,6 +879,45 @@ ggplot(comp_plot_data1, aes(x=water_body_value, y = draws))+
 
 ggplot(data = plot_data, aes(x = (richness), y = (sum_biofoul_risk)))+
   geom_point() #high species richness does not necessarily indicate high biofouling risk
+
+#mapping approach
+
+load(all_data2, file = "data_outputs/mapping_data.RData")
+
+plot_data <- all_data2 %>%
+  arrange((w_mean_risk))
+
+plot_data$scenario <- ifelse(plot_data$Biodiversi == 1 & plot_data$Social_B_1 == 1, "Both",
+                             ifelse(plot_data$Biodiversi == 1 & plot_data$Social_B_1 == 0, "Fresh Water",
+                                    ifelse(plot_data$Biodiversi == 0 & plot_data$Social_B_1 == 1, "Social", "Neither")))
+
+plot_data$scenario <- factor(plot_data$scenario, levels = c("Neither","Social","Fresh Water","Both"))
+
+FW_Soc <- "#117733"
+Soc <- "#DDCC77"
+FW <- "#332288"
+
+#not including richness
+png("figures/scenario_comparison_map.png", height = 9, width = 11, units = "in",res=300)
+
+ggplot()+
+  geom_sf(data = NE_pro)+
+  geom_sf(data=GL_crop, fill ="#4682B4")+
+  theme_classic(base_size = 15)+
+  geom_point(data = plot_data, aes(x = water_lon, y = water_lat, col = scenario, size = w_mean_risk_scaled, alpha = 0.5))+
+  #scale_color_viridis(option="inferno",limits = c(-3,19))+
+  #scale_fill_brewer(palette = "YlOrRd")+
+  scale_color_manual(values=c("#CC6677","#DDCC77","#332288","#117733"))+
+  ylab("")+
+  xlab("")+
+  labs(color = "Value")+
+  scale_size(guide="none")+
+  guides(color = guide_legend(override.aes = list(size = 5), reverse = T ),
+         alpha = "none")
+#scale_color_gsea(reverse = TRUE, limits = c(-19,19))
+
+dev.off()
+
 
 
 
