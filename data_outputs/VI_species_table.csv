@@ -1,0 +1,292 @@
+"","scientific_name","common_name","group","order","family","bodymass_g","defication_rate_estimated","wingloading_quantile","axial_length_estimated","axial_length_quantile","VA_risk","CCS_raw","CCS_quantile","habitat_score","habitat_comment","VI"
+"1","Empidonax virescens","Acadian Flycatcher","landbird","Passeriformes","Tyrannidae",12.6,0.848038299,1,7.769267084,2,4,10,3,1,"",7.5
+"2","Empidonax alnorum","Alder Flycatcher","landbird","Passeriformes","Tyrannidae",12.7,0.85357696,1,6.148575017,1,5,8,2,1,"",6
+"3","Aix sponsa","Wood Duck","waterfowl","Anseriformes","Anatidae",657.59,22.02140488,5,15.51365241,5,1,7,1,4,"",12
+"4","Recurvirostra americana","American Avocet","shorebird","Charadriiformes","Recurvirostridae",304.48,11.68072599,3.5,9.210968905,3,3,11,4,5,"",65
+"5","Anas acuta","Northern Pintail","waterfowl","Anseriformes","Anatidae",944.62,29.67447453,5,11.92746774,4,2,13,5,5,"completely absent in FPV (Song et al. 2024)",87.5
+"6","Corvus brachyrhynchos","American Crow","landbird","Passeriformes","Corvidae",448.76,16.07654403,4,9.19032702,3,3,8,1,1,"",3.5
+"7","Spinus tristis","American Goldfinch","landbird","Passeriformes","Fringillidae",12.79,0.858555175,2,8.314409294,3,3,8,1,1,"",2.5
+"8","Falco sparverius","American Kestrel","landbird","Falconiformes","Falconidae",114.61,5.224314045,3,12.770207,4,2,10,3,1,"",7.5
+"9","Anthus rubescens","American Pipit","landbird","Passeriformes","Motacillidae",20.68,1.275310722,1.888888889,9.178026175,3,3,9,3,2,"hang out on shorelines but not as important for habitat as for other species.",14.666666667
+"10","Setophaga ruticilla","American Redstart","landbird","Passeriformes","Parulidae",8.24,0.597759563,1,8.715143345,3,3,9,2,1,"",4
+"11","Turdus migratorius","American Robin","landbird","Passeriformes","Turdidae",78.5,3.82547029,3,10.6874045,3,3,7,1,1,"",3
+"12","Anas crecca","Green-winged Teal","waterfowl","Anseriformes","Anatidae",341.89,12.85033934,5,13.00470334,4,2,9,2,4,"",28
+"13","Pluvialis dominica","American Golden-Plover","shorebird","Charadriiformes","Charadriidae",151.47,6.572921009,3.222222222,8.764249745,3,3,15,5,5,"Shorebirds strongly negatively affected in Song et al. 2024",77.777777775
+"14","Spizelloides arborea","American Tree Sparrow","landbird","Passeriformes","Passerellidae",17.83,1.128712487,2,14.98974157,5,1,12,4,1,"",6
+"15","Anas platyrhynchos","Mallard","waterfowl","Anseriformes","Anatidae",843.42,27.0306179,5,12.79780377,4,2,7,1,1,"Increased 1.88x (Song et al. 2024)",3.5
+"16","Setophaga castanea","Bay-breasted Warbler","landbird","Passeriformes","Parulidae",11.8,0.803443199,1.470588235,7.642024308,2,4,10,3,1,"",8.2058823525
+"17","Calidris bairdii","Baird's Sandpiper","shorebird","Charadriiformes","Scolopacidae",40.97,2.239368804,3.535714286,5.308150395,1,5,13,5,5,"Shorebirds strongly negatively affected in Song et al. 2024",106.696428575
+"18","Haliaeetus leucocephalus","Bald Eagle","landbird","Accipitriformes","Accipitridae",4700.58,111.2435736,3.6,9.350928191,3,3,9,3,3,"",29.7
+"19","Icterus galbula","Baltimore Oriole","landbird","Passeriformes","Icteridae",32.83,1.865988889,3,6.285223499,1,5,11,4,1,"",16
+"20","Riparia riparia","Bank Swallow","landbird","Passeriformes","Hirundinidae",12.68,0.852469845,1,9.237974843,3,3,11,4,2,"""Presently breeds primarily in lowland areas along ocean coasts, rivers, streams, lakes, reservoirs, and wetlands (Cramp 1988, Turner and Rose 1989a, Am. Ornithol. Union American Ornithologists' Union 1998a). """,16
+"21","Anas rubripes","American Black Duck","waterfowl","Anseriformes","Anatidae",1240.96,37.15080448,5,22.00681137,5,1,12,4,1,"Tolerant of vegetation, similar to mallard which increased in Song et al. 2024.",12
+"22","Hirundo rustica","Barn Swallow","landbird","Passeriformes","Hirundinidae",17.91,1.13288131,1,14.15911666,5,1,9,2,2,"",4
+"23","Mniotilta varia","Black-and-white Warbler","landbird","Passeriformes","Parulidae",10.9,0.752629254,1,10.56938024,3,3,9,2,1,"",4
+"24","Anser caerulescens","Snow Goose","waterfowl","Anseriformes","Anatidae",2636.15,69.09192814,5,8.133619072,2,4,10,3,4,"",54
+"25","Megaceryle alcyon","Belted Kingfisher","landbird","Coraciiformes","Alcedinidae",148,6.448667249,3,8.212581792,2,4,10,3,3,"",31.5
+"26","Catharus bicknelli","Bicknell's Thrush","landbird","Passeriformes","Turdidae",27.79,1.626680494,2.642857143,6.141142038,1,5,17,5,1,"",19.1071428575
+"27","Coccyzus erythropthalmus","Black-billed Cuckoo","landbird","Cuculiformes","Cuculidae",50.9,2.677576693,2,6.102075697,1,5,12,4,1,"",14
+"28","Pluvialis squatarola","Black-bellied Plover","shorebird","Charadriiformes","Charadriidae",250,9.930311132,4,12.01517312,4,2,13,5,5,"Shorebirds strongly negatively affected in Song et al. 2024",75
+"29","Setophaga fusca","Blackburnian Warbler","landbird","Passeriformes","Parulidae",9.74,0.686023061,1.470588235,6.304667346,1,5,10,3,1,"",9.7058823525
+"30","Picoides arcticus","Black-backed Woodpecker","landbird","Piciformes","Picidae",69.24,3.449798699,2.454545455,15.15790339,5,1,8,2,1,"",3.454545455
+"31","Poecile atricapillus","Black-capped Chickadee","landbird","Passeriformes","Paridae",10.8,0.746938491,2,11.66235718,4,2,7,1,1,"",2
+"32","Setophaga striata","Blackpoll Warbler","landbird","Passeriformes","Parulidae",11.84,0.805685359,1,8.20511157,2,4,11,4,1,"",10
+"33","Anser rossii","Ross's Goose","waterfowl","Anseriformes","Anatidae",1635.99,46.64519907,5,10.07747873,3,3,12,4,4,"",64
+"34","Antigone canadensis","Sandhill Crane","waterbird","Gruiformes","Gruidae",4296.22,103.3011103,5,7.345577432,2,4,8,2,3,"",27
+"35","Coragyps atratus","Black Vulture","landbird","Cathartiformes","Cathartidae",1881.69,52.34182745,4,11.66384916,4,2,5,1,1,"",3
+"36","Passerina caerulea","Blue Grosbeak","landbird","Passeriformes","Cardinalidae",27.39,1.607374538,2,6.573013719,1,5,7,1,1,"",3.5
+"37","Cyanocitta cristata","Blue Jay","landbird","Passeriformes","Corvidae",88,4.202823103,3,11.69048943,4,2,8,1,1,"",2.5
+"38","Molothrus ater","Brown-headed Cowbird","landbird","Passeriformes","Icteridae",40.26,2.207361477,3,6.954486434,2,4,8,1,1,"",3.5
+"39","Sitta pusilla","Brown-headed Nuthatch","landbird","Passeriformes","Sittidae",10.2,0.712594784,2,7.869507716,2,4,13,5,1,"",15
+"40","Dolichonyx oryzivorus","Bobolink","landbird","Passeriformes","Icteridae",31.46,1.801624591,3,7.020170813,2,4,14,5,1,"",17.5
+"41","Bombycilla garrulus","Bohemian Waxwing","landbird","Passeriformes","Bombycillidae",54.41,2.82872828,3,10.01108958,3,3,11,4,1,"",12
+"42","Ardea alba","Great Egret","waterbird","Pelecaniformes","Ardeidae",871.33,27.76509991,3,6.040560685,1,5,6,1,3,"Remained mostly stable - increased 1.29x (Song et al. 2024)",12
+"43","Quiscalus major","Boat-tailed Grackle","landbird","Passeriformes","Icteridae",151.21,6.563628475,3,5.969176669,1,5,13,5,1,"",20
+"44","Ardea herodias","Great Blue Heron","waterbird","Pelecaniformes","Ardeidae",2523.41,66.64927126,4,9.973478154,3,3,8,2,3,"",21
+"45","Strix varia","Barred Owl","landbird","Strigiformes","Strigidae",711.49,23.49740452,3,11.14611429,4,2,7,1,1,"",2.5
+"46","Certhia americana","Brown Creeper","landbird","Passeriformes","Certhiidae",8.1,0.58938339,1,6.018607343,1,5,8,2,1,"",6
+"47","Tyto alba","Barn Owl","landbird","Strigiformes","Tytonidae",403.32,14.72352047,3,19.7133655,5,1,8,2,1,"",4
+"48","Aythya affinis","Lesser Scaup","waterfowl","Anseriformes","Anatidae",819.45,26.39639275,5,15.98772102,5,1,9,2,4,"",24
+"49","Toxostoma rufum","Brown Thrasher","landbird","Passeriformes","Mimidae",68.8,3.431735418,3,8.064190755,2,4,11,4,1,"",14
+"50","Buteo platypterus","Broad-winged Hawk","landbird","Accipitriformes","Accipitridae",453.65,16.22066743,4,33.45377128,5,1,8,1,1,"",2.5
+"51","Setophaga caerulescens","Black-throated Blue Warbler","landbird","Passeriformes","Parulidae",10.14,0.709141098,1,7.691523347,2,4,10,3,1,"",7.5
+"52","Setophaga virens","Black-throated Green Warbler","landbird","Passeriformes","Parulidae",8.69,0.624515527,2,8.426362241,3,3,11,4,1,"",10
+"53","Calidris subruficollis","Buff-breasted Sandpiper","shorebird","Charadriiformes","Scolopacidae",62.1,3.154065349,3.535714286,7.213733323,2,4,15,5,5,"Shorebirds strongly negatively affected in Song et al. 2024",94.196428575
+"54","Aythya americana","Redhead","waterfowl","Anseriformes","Anatidae",1075.69,33.02578063,5,8.37431307,3,3,8,2,4,"",32
+"55","Polioptila caerulea","Blue-gray Gnatcatcher","landbird","Passeriformes","Polioptilidae",5.8,0.447655115,2,13.21984428,4,2,8,2,1,"",4
+"56","Vireo solitarius","Blue-headed Vireo","landbird","Passeriformes","Vireonidae",15.3,0.995070031,2,11.00981344,4,2,8,1,1,"",2
+"57","Aythya collaris","Ring-necked Duck","waterfowl","Anseriformes","Anatidae",704.55,23.30849717,5,11.91732195,4,2,8,1,4,"",14
+"58","Vermivora cyanoptera","Blue-winged Warbler","landbird","Passeriformes","Parulidae",8.9,0.636917404,1.470588235,22.74741917,5,1,14,5,1,"",6.1764705875
+"59","Aythya marila","Greater Scaup","waterfowl","Anseriformes","Anatidae",1005.37,31.23734829,5,9.577922614,3,3,10,3,4,"",48
+"60","Setophaga tigrina","Cape May Warbler","landbird","Passeriformes","Parulidae",10.04,0.703376923,1,9.956351054,3,3,11,4,1,"",8
+"61","Aythya valisineria","Canvasback","waterfowl","Anseriformes","Anatidae",1202,36.18762063,5,8.244126707,2,4,10,3,4,"",54
+"62","Botaurus lentiginosus","American Bittern","waterbird","Pelecaniformes","Ardeidae",706,23.34799332,4,8.125513734,2,4,12,4,3,"",48
+"63","Cardellina canadensis","Canada Warbler","landbird","Passeriformes","Parulidae",10.04,0.703376923,1.470588235,13.70426137,4,2,13,5,1,"",8.6764705875
+"64","Poecile carolinensis","Carolina Chickadee","landbird","Passeriformes","Paridae",9.99,0.70049104,1.444444444,19.99562472,5,1,9,3,1,"",3.666666666
+"65","Thryothorus ludovicianus","Carolina Wren","landbird","Passeriformes","Troglodytidae",18.96,1.187298842,2,6.872878986,2,4,7,1,1,"",3
+"66","Branta bernicla","Brant","waterfowl","Anseriformes","Anatidae",1277.91,38.05937473,5,13.08853487,4,2,13,5,4,"",70
+"67","Branta canadensis","Canada Goose","waterfowl","Anseriformes","Anatidae",2811.68,72.85876559,5,11.32888925,4,2,6,1,4,"",14
+"68","Bombycilla cedrorum","Cedar Waxwing","landbird","Passeriformes","Bombycillidae",31.58,1.807281823,2,17.45170801,5,1,8,1,1,"",1.5
+"69","Setophaga cerulea","Cerulean Warbler","landbird","Passeriformes","Parulidae",9.04,0.645156598,1.470588235,11.1298482,4,2,14,5,1,"",8.6764705875
+"70","Spizella passerina","Chipping Sparrow","landbird","Passeriformes","Passerellidae",12.2,0.825805278,1,6.975588938,2,4,9,2,1,"",5
+"71","Chaetura pelagica","Chimney Swift","landbird","Apodiformes","Apodidae",23.6,1.421847875,2,10.73227893,3,3,13,5,1,"",12.5
+"72","Setophaga pensylvanica","Chestnut-sided Warbler","landbird","Passeriformes","Parulidae",9.29,0.659813765,2,12.34057208,4,2,12,4,1,"",8
+"73","Antrostomus carolinensis","Chuck-will's-widow","landbird","Caprimulgiformes","Caprimulgidae",109,5.01279882,2,11.76255111,4,2,12,4,1,"",8
+"74","Spizella pallida","Clay-colored Sparrow","landbird","Passeriformes","Passerellidae",11.2,0.76964669,2.416666667,12.81323642,4,2,10,3,1,"",6.6250000005
+"75","Petrochelidon pyrrhonota","Cliff Swallow","landbird","Passeriformes","Hirundinidae",21.6,1.321851885,1.25,18.45422861,5,1,5,1,2,"",2.25
+"76","Branta hutchinsii","Cackling Goose","waterfowl","Anseriformes","Anatidae",2811.68,72.85876559,5,14.46559166,5,1,10,3,4,"",36
+"77","Bubulcus ibis/coromandus","Western/Eastern Cattle Egret","waterbird","Pelecaniformes","Ardeidae",365.95,13.59054696,3.4,31.77653636,5,1,9,3,5,"Eastern cattle egret completely absent in FPV (Song et al. 2024)",33
+"78","Quiscalus quiscula","Common Grackle","landbird","Passeriformes","Icteridae",105.18,4.867674502,3,8.508124762,3,3,10,3,1,"",9
+"79","Bucephala albeola","Bufflehead","waterfowl","Anseriformes","Anatidae",397.46,14.54712705,5,17.73095333,5,1,8,1,4,"",12
+"80","Bucephala clangula","Common Goldeneye","waterfowl","Anseriformes","Anatidae",918.56,28.99865439,5,11.93646962,4,2,9,2,4,"",28
+"81","Chordeiles minor","Common Nighthawk","landbird","Caprimulgiformes","Caprimulgidae",79.3,3.85754621,2,11.66384916,4,2,11,4,1,"",8
+"82","Corvus corax","Common Raven","landbird","Passeriformes","Corvidae",927.97,29.24307165,4,10.05751318,3,3,6,1,1,"",3.5
+"83","Acanthis flammea","Common Redpoll","landbird","Passeriformes","Fringillidae",13,0.870147069,2.125,13.96872365,4,2,9,3,1,"",6.1875
+"84","Geothlypis trichas","Common Yellowthroat","landbird","Passeriformes","Parulidae",9.54,0.67440147,2,16.19271501,5,1,9,2,2,"",6
+"85","Accipiter cooperii","Cooper's Hawk","landbird","Accipitriformes","Accipitridae",429.67,15.51121311,4,18.13512423,5,1,7,1,1,"",2.5
+"86","Junco hyemalis","Dark-eyed Junco","landbird","Passeriformes","Passerellidae",19.5,1.215076634,2,19.83101686,5,1,9,2,1,"",3
+"87","Spiza americana","Dickcissel","landbird","Passeriformes","Cardinalidae",26.18,1.548667065,2,9.249221875,3,3,10,3,1,"",7.5
+"88","Bucephala islandica","Barrow's Goldeneye","waterfowl","Anseriformes","Anatidae",921.21,29.06753054,5,10.27684834,3,3,13,5,5,"""Prefers open water without emergent or dense submerged vegetation.""",100
+"89","Dryobates pubescens","Downy Woodpecker","landbird","Piciformes","Picidae",25.55,1.517911602,2,6.017030586,1,5,8,2,1,"",7
+"90","Calidris alpina","Dunlin","shorebird","Charadriiformes","Scolopacidae",51.89,2.720390323,3,11.12705897,4,2,12,4,5,"completely absent in FPV (Song et al. 2024)",50
+"91","Sialia sialis","Eastern Bluebird","landbird","Passeriformes","Turdidae",27.5,1.612688607,2,9.518001008,3,3,7,1,1,"",2.5
+"92","Tyrannus tyrannus","Eastern Kingbird","landbird","Passeriformes","Tyrannidae",39.85,2.188833055,1,7.207102753,2,4,11,4,2,"",20
+"93","Sturnella magna","Eastern Meadowlark","landbird","Passeriformes","Icteridae",91.76,4.350154628,4,8.973032341,3,3,11,4,1,"",14
+"94","Megascops asio","Eastern Screech-Owl","landbird","Strigiformes","Strigidae",179.99,7.576286932,4,6.446676831,1,5,9,3,1,"",13.5
+"95","Sayornis phoebe","Eastern Phoebe","landbird","Passeriformes","Tyrannidae",19.7,1.225330096,1,11.94155295,4,2,9,2,1,"",3
+"96","Pipilo erythrophthalmus","Eastern Towhee","landbird","Passeriformes","Passerellidae",40.03,2.196971607,3,14.12161675,5,1,13,5,1,"",10
+"97","Antrostomus vociferus","Eastern Whip-poor-will","landbird","Caprimulgiformes","Caprimulgidae",53.3,2.781119599,1.75,6.813611738,2,4,14,5,1,"",14.375
+"98","Contopus virens","Eastern Wood-Pewee","landbird","Passeriformes","Tyrannidae",13.9,0.919460286,1,5.702824581,1,5,9,3,1,"",9
+"99","Sturnus vulgaris","European Starling","landbird","Passeriformes","Sturnidae",77.14,3.770808317,3,9.746803211,3,3,9,2,1,"",6
+"100","Coccothraustes vespertinus","Evening Grosbeak","landbird","Passeriformes","Fringillidae",57.3,2.951889623,2.125,9.519693898,3,3,14,5,1,"",12.8125
+"101","Spizella pusilla","Field Sparrow","landbird","Passeriformes","Passerellidae",12.5,0.842491874,2,10.3492698,3,3,13,5,1,"",12.5
+"102","Corvus ossifragus","Fish Crow","landbird","Passeriformes","Corvidae",284.6,11.04896631,3,12.82134167,4,2,11,4,1,"",10
+"103","Butorides virescens","Green Heron","waterbird","Pelecaniformes","Ardeidae",201.5,8.314379425,3,5.801312943,1,5,12,4,3,"",48
+"104","Passerella iliaca","Fox Sparrow","landbird","Passeriformes","Passerellidae",33.25,1.885625316,3,14.60574068,5,1,9,2,1,"",4
+"105","Chlidonias niger","Black Tern","waterbird","Charadriiformes","Laridae",65.3,3.28731061,1,10.726734,3,3,12,4,5,"Gulls and terns strongly negatively affected in Song et al. 2024",40
+"106","Chroicocephalus philadelphia","Bonaparte's Gull","waterbird","Charadriiformes","Laridae",210.71,8.626091056,3.114285714,9.604239613,3,3,10,3,5,"Gulls and terns strongly negatively affected in Song et al. 2024",45.857142855
+"107","Clangula hyemalis","Long-tailed Duck","waterfowl","Anseriformes","Anatidae",871,27.7564401,5,15.98772102,5,1,13,5,4,"",60
+"108","Cygnus buccinator","Trumpeter Swan","waterfowl","Anseriformes","Anatidae",11071.13,225.242314,5,8.032018523,2,4,11,4,4,"",72
+"109","Cygnus columbianus","Tundra Swan","waterfowl","Anseriformes","Anatidae",6377.96,143.0255283,5,12.21290285,4,2,11,4,1,"Swans increased 34.34x (Song et al. 2024)",14
+"110","Regulus satrapa","Golden-crowned Kinglet","landbird","Passeriformes","Regulidae",6.19,0.472299869,1,21.04200773,5,1,10,3,1,"",3
+"111","Aquila chrysaetos","Golden Eagle","landbird","Accipitriformes","Accipitridae",4247.97,102.344773,5,17.87902288,5,1,10,3,1,"Fishing rare",9
+"112","Vermivora chrysoptera","Golden-winged Warbler","landbird","Passeriformes","Parulidae",8.74,0.627473107,1.470588235,7.623729095,2,4,15,5,1,"",13.6764705875
+"113","Ammodramus savannarum","Grasshopper Sparrow","landbird","Passeriformes","Passerellidae",17.61,1.117231142,2,8.763468065,3,3,12,4,1,"",10
+"114","Cygnus olor","Mute Swan","waterfowl","Anseriformes","Anatidae",10682.04,218.7029573,5,9.449225836,3,3,8,1,4,"",16
+"115","Myiarchus crinitus","Great Crested Flycatcher","landbird","Passeriformes","Tyrannidae",32.1,1.831752883,1,6.141142038,1,5,8,2,1,"",6
+"116","Egretta caerulea","Little Blue Heron","waterbird","Pelecaniformes","Ardeidae",338.61,12.74872988,3,5.21845202,1,5,12,4,3,"",48
+"117","Egretta thula","Snowy Egret","waterbird","Pelecaniformes","Ardeidae",371,13.74480341,3.4,20.97598166,5,1,7,1,3,"",6.6
+"118","Egretta tricolor","Tricolored Heron","waterbird","Pelecaniformes","Ardeidae",372.3,13.78445285,3,5.837704212,1,5,12,4,3,"",48
+"119","Tringa melanoleuca","Greater Yellowlegs","shorebird","Charadriiformes","Scolopacidae",161.74,6.937780807,4,12.4930866,4,2,14,5,5,"Shorebirds strongly negatively affected in Song et al. 2024",75
+"120","Bubo virginianus","Great Horned Owl","landbird","Strigiformes","Strigidae",1575.7,45.22494625,4,5.944838577,1,5,8,2,1,"",9
+"121","Eudocimus albus","White Ibis","waterbird","Pelecaniformes","Threskiornithidae",889.66,28.24521104,4,6.024902754,1,5,9,3,3,"",40.5
+"122","Dumetella carolinensis","Gray Catbird","landbird","Passeriformes","Mimidae",35.3,1.980853812,2,14.31766365,5,1,8,1,1,"",1.5
+"123","Perisoreus canadensis","Canada Jay","landbird","Passeriformes","Corvidae",71.58,3.545525914,3.133333333,10.90581212,4,2,9,3,1,"",7.6999999995
+"124","Catharus minimus","Gray-cheeked Thrush","landbird","Passeriformes","Turdidae",31.58,1.807281823,2,11.77440011,4,2,9,2,1,"",4
+"125","Dryobates villosus","Hairy Woodpecker","landbird","Piciformes","Picidae",62.65,3.177051515,2.454545455,16.74534403,5,1,6,1,1,"",1.7272727275
+"126","Centronyx henslowii","Henslow's Sparrow","landbird","Passeriformes","Passerellidae",12.8,0.859107928,2.416666667,12.74520081,4,2,15,5,1,"",11.0416666675
+"127","Fulica americana","American Coot","waterbird","Gruiformes","Rallidae",636.74,21.44478727,5,13.60929694,4,2,10,3,3,"",31.5
+"128","Catharus guttatus","Hermit Thrush","landbird","Passeriformes","Turdidae",30.1,1.737238804,3,11.4277034,4,2,9,2,1,"",5
+"129","Acanthis hornemanni","Hoary Redpoll","landbird","Passeriformes","Fringillidae",15.2,0.989711121,2.125,16.07594585,5,1,9,3,1,"",4.6875
+"130","Gallinula galeata","Common Gallinule","waterbird","Gruiformes","Rallidae",383,14.10987925,4,5.4736618,1,5,8,2,3,"Song et al. 2024 found proportion of total richness was higher for vegetation gleaners, but absolute numbers were lower for eurasian coot and higher for common moorhen. Appears less impacted than other guilds.",27
+"131","Setophaga citrina","Hooded Warbler","landbird","Passeriformes","Parulidae",10.54,0.732098689,1,22.01461853,5,1,10,3,1,"",3
+"132","Gavia immer","Common Loon","waterbird","Gaviiformes","Gaviidae",4956.81,116.2136834,5,13.08639194,4,2,9,2,5,"",35
+"133","Eremophila alpestris","Horned Lark","landbird","Passeriformes","Alaudidae",33.33,1.88936061,2,6.276838273,1,5,9,3,1,"",10.5
+"134","Haemorhous mexicanus","House Finch","landbird","Passeriformes","Fringillidae",21.4,1.311764508,2.125,11.16986729,4,2,6,1,1,"",2.0625
+"135","Passer domesticus","House Sparrow","landbird","Passeriformes","Passeridae",26.51,1.564724809,3,20.5253564,5,1,9,2,1,"",4
+"136","Troglodytes aedon","House Wren","landbird","Passeriformes","Troglodytidae",10.85,0.74978503,2,16.69225719,5,1,5,1,1,"",1.5
+"137","Limosa haemastica","Hudsonian Godwit","shorebird","Charadriiformes","Scolopacidae",253.29,10.03780405,3.535714286,5.861614378,1,5,17,5,5,"Shorebirds strongly negatively affected in Song et al. 2024",106.696428575
+"138","Passerina cyanea","Indigo Bunting","landbird","Passeriformes","Cardinalidae",14.69,0.962282785,2,14.97192237,5,1,10,3,1,"",4.5
+"139","Geothlypis formosa","Kentucky Warbler","landbird","Passeriformes","Parulidae",14,0.924904138,1.470588235,11.1801041,4,2,14,5,1,"",8.6764705875
+"140","Charadrius vociferus","Killdeer","shorebird","Charadriiformes","Charadriidae",96.44,4.532057418,3,19.81265615,5,1,10,3,5,"Shorebirds strongly negatively affected in Song et al. 2024",30
+"141","Gavia stellata","Red-throated Loon","waterbird","Gaviiformes","Gaviidae",1486,43.09393117,5,16.60037205,5,1,9,2,5,"",30
+"142","Calcarius lapponicus","Lapland Longspur","landbird","Passeriformes","Calcariidae",27.84,1.629090278,2,10.42321447,3,3,10,3,1,"",7.5
+"143","Hydroprogne caspia","Caspian Tern","waterbird","Charadriiformes","Laridae",655,21.9499546,4,12.43105878,4,2,9,2,5,"Gulls and terns strongly negatively affected in Song et al. 2024",30
+"144","Ixobrychus exilis","Least Bittern","waterbird","Pelecaniformes","Ardeidae",86.29,4.135452945,3.4,20.51872126,5,1,10,4,3,"",26.4
+"145","Larus argentatus","Herring Gull","waterbird","Charadriiformes","Laridae",1090.99,33.41212813,4,22.89108996,5,1,12,4,5,"completely absent in FPV (Song et al. 2024)",50
+"146","Empidonax minimus","Least Flycatcher","landbird","Passeriformes","Tyrannidae",10,0.70106842,1,5.693630025,1,5,11,4,1,"",12
+"147","Calidris minutilla","Least Sandpiper","shorebird","Charadriiformes","Scolopacidae",22.88,1.386028443,3.535714286,8.775160175,3,3,11,4,5,"Shorebirds strongly negatively affected in Song et al. 2024",65.35714286
+"148","Larus delawarensis","Ring-billed Gull","waterbird","Charadriiformes","Laridae",516.31,18.04433276,3.114285714,7.327536712,2,4,8,2,5,"Gulls and terns strongly negatively affected in Song et al. 2024",35.57142857
+"149","Tringa flavipes","Lesser Yellowlegs","shorebird","Charadriiformes","Scolopacidae",77.5,3.785294098,3.535714286,7.391024541,2,4,13,5,5,"Shorebirds strongly negatively affected in Song et al. 2024",94.196428575
+"150","Larus fuscus","Lesser Black-backed Gull","waterbird","Charadriiformes","Laridae",762.36,24.87240068,4,10.92786306,4,2,7,1,5,"Gulls and terns strongly negatively affected in Song et al. 2024",15
+"151","Melospiza lincolnii","Lincoln's Sparrow","landbird","Passeriformes","Passerellidae",16.6,1.06419015,3,9.889150996,3,3,7,1,1,"",3
+"152","Limnodromus scolopaceus","Long-billed Dowitcher","shorebird","Charadriiformes","Scolopacidae",104.4,4.837928329,3.535714286,6.818051925,2,4,14,5,5,"Shorebirds strongly negatively affected in Song et al. 2024",94.196428575
+"153","Asio otus","Long-eared Owl","landbird","Strigiformes","Strigidae",296.57,11.4302561,2,7.168879872,2,4,10,3,1,"",9
+"154","Lanius ludovicianus","Loggerhead Shrike","landbird","Passeriformes","Laniidae",51.59,2.707431845,2.2,12.76088389,4,2,11,4,1,"",8.4
+"155","Larus glaucoides","Iceland Gull","waterbird","Charadriiformes","Laridae",693.31,23.00184446,4,8.722147245,3,3,11,4,5,"Gulls and terns strongly negatively affected in Song et al. 2024",70
+"156","Parkesia motacilla","Louisiana Waterthrush","landbird","Passeriformes","Parulidae",19.9,1.235565201,2,13.67439713,4,2,11,4,2,"",16
+"157","Setophaga magnolia","Magnolia Warbler","landbird","Passeriformes","Parulidae",8.14,0.591779171,1,9.172275981,3,3,9,2,1,"",4
+"158","Larus hyperboreus","Glaucous Gull","waterbird","Charadriiformes","Laridae",1529.04,44.11919039,3.114285714,7.896030979,2,4,13,5,5,"Gulls and terns strongly negatively affected in Song et al. 2024",88.928571425
+"159","Limosa fedoa","Marbled Godwit","shorebird","Charadriiformes","Scolopacidae",357.02,13.31684802,3.535714286,8.045960817,2,4,15,5,5,"Shorebirds strongly negatively affected in Song et al. 2024",94.196428575
+"160","Cistothorus palustris","Marsh Wren","landbird","Passeriformes","Troglodytidae",10.8,0.746938491,2,8.799029446,3,3,7,1,2,"",5
+"161","Falco columbarius","Merlin","landbird","Falconiformes","Falconidae",188.5,7.87006392,3,20.31952854,5,1,8,1,1,"",2
+"162","Ictinia mississippiensis","Mississippi Kite","landbird","Accipitriformes","Accipitridae",276.03,10.77424196,3.6,5.986848444,1,5,9,3,1,"",12.9
+"163","Zenaida macroura","Mourning Dove","landbird","Columbiformes","Columbidae",118.93,5.385946147,3,16.13171661,5,1,7,1,1,"",2
+"164","Geothlypis philadelphia","Mourning Warbler","landbird","Passeriformes","Parulidae",11.74,0.800077441,1.470588235,14.04508975,5,1,12,5,1,"",6.1764705875
+"165","Larus marinus","Great Black-backed Gull","waterbird","Charadriiformes","Laridae",1649.71,46.96710064,4,15.72008641,5,1,15,5,5,"Gulls and terns strongly negatively affected in Song et al. 2024",62.5
+"166","Leiothlypis ruficapilla","Nashville Warbler","landbird","Passeriformes","Parulidae",8.09,0.588784119,1.470588235,13.09898718,4,2,11,4,1,"",6.94117647
+"167","Colinus virginianus","Northern Bobwhite","landbird","Galliformes","Odontophoridae",171.89,7.294378095,5,11.06064511,4,2,12,4,1,"",14
+"168","Cardinalis cardinalis","Northern Cardinal","landbird","Passeriformes","Cardinalidae",42.64,2.314271725,2,9.100819242,3,3,6,1,1,"",2.5
+"169","Colaptes auratus","Northern Flicker","landbird","Piciformes","Picidae",131.46,5.849059512,3,7.11634998,2,4,10,3,1,"",10.5
+"170","Circus hudsonius","Northern Harrier","landbird","Accipitriformes","Accipitridae",392.98,14.41196378,3,32.5784233,5,1,11,4,1,"",8
+"171","Mimus polyglottos","Northern Mockingbird","landbird","Passeriformes","Mimidae",48.5,2.573168133,2,19.63134239,5,1,9,2,1,"",3
+"172","Setophaga americana","Northern Parula","landbird","Passeriformes","Parulidae",7.84,0.573759341,1,6.795922453,2,4,9,2,1,"",5
+"173","Leucophaeus atricilla","Laughing Gull","waterbird","Charadriiformes","Laridae",307.41,11.77321163,3,14.22565236,5,1,11,4,5,"Gulls and terns strongly negatively affected in Song et al. 2024",40
+"174","Lophodytes cucullatus","Hooded Merganser","waterfowl","Anseriformes","Anatidae",613.77,20.80566481,5,6.980014779,2,4,8,2,5,"",45
+"175","Lanius borealis","Northern Shrike","landbird","Passeriformes","Laniidae",67.5,3.37824686,2.2,9.551769486,3,3,13,5,1,"",13
+"176","Parkesia noveboracensis","Northern Waterthrush","landbird","Passeriformes","Parulidae",16.3,1.048326883,2,7.007721276,2,4,8,1,2,"",6
+"177","Stelgidopteryx serripennis","Northern Rough-winged Swallow","landbird","Passeriformes","Hirundinidae",15.69,1.015911177,1.25,7.356938427,2,4,9,3,2,"",15.75
+"178","Aegolius acadicus","Northern Saw-whet Owl","landbird","Strigiformes","Strigidae",100.69,4.695899937,3,7.743822372,2,4,8,2,1,"",7
+"179","Contopus cooperi","Olive-sided Flycatcher","landbird","Passeriformes","Tyrannidae",32.1,1.831752883,1,5.647017406,1,5,13,5,1,"",15
+"180","Icterus spurius","Orchard Oriole","landbird","Passeriformes","Icteridae",19.44,1.211996983,2,11.90737319,4,2,10,3,1,"",6
+"181","Leiothlypis celata","Orange-crowned Warbler","landbird","Passeriformes","Parulidae",9.19,0.653959357,1.470588235,9.304834727,3,3,8,2,1,"",4.470588235
+"182","Pandion haliaetus","Osprey","landbird","Accipitriformes","Pandionidae",1483.2,43.02705202,4,15.92264926,5,1,7,1,3,"",7.5
+"183","Seiurus aurocapilla","Ovenbird","landbird","Passeriformes","Parulidae",18.8,1.179041709,2,6.394129163,1,5,9,2,1,"",7
+"184","Setophaga palmarum","Palm Warbler","landbird","Passeriformes","Parulidae",10.3,0.718342975,1.470588235,11.29800569,4,2,10,3,1,"",5.2058823525
+"185","Calidris melanotos","Pectoral Sandpiper","shorebird","Charadriiformes","Scolopacidae",79.73,3.874763395,4,8.200315304,2,4,14,5,5,"Shorebirds strongly negatively affected in Song et al. 2024",100
+"186","Falco peregrinus","Peregrine Falcon","landbird","Falconiformes","Falconidae",759.95,24.80763288,4,19.91931565,5,1,9,2,1,"",5
+"187","Vireo philadelphicus","Philadelphia Vireo","landbird","Passeriformes","Vireonidae",11.5,0.786583852,2,9.923777608,3,3,9,3,1,"",7.5
+"188","Mareca americana","American Wigeon","waterfowl","Anseriformes","Anatidae",754.61,24.66399311,5,6.560685714,1,5,10,3,4,"",60
+"189","Dryocopus pileatus","Pileated Woodpecker","landbird","Piciformes","Picidae",286.59,11.11254852,2.454545455,18.2876283,5,1,7,1,1,"",1.7272727275
+"190","Pinicola enucleator","Pine Grosbeak","landbird","Passeriformes","Fringillidae",56.4,2.913655029,3,6.407380234,1,5,12,4,1,"",16
+"191","Spinus pinus","Pine Siskin","landbird","Passeriformes","Fringillidae",12.7,0.85357696,2.125,13.85609438,4,2,10,3,1,"",6.1875
+"192","Setophaga pinus","Pine Warbler","landbird","Passeriformes","Parulidae",11.79,0.802882449,1.470588235,9.561149584,3,3,8,2,1,"",4.470588235
+"193","Charadrius melodus","Piping Plover","shorebird","Charadriiformes","Charadriidae",54.39,2.827871993,3.222222222,7.110445437,2,4,16,5,5,"Shorebirds strongly negatively affected in Song et al. 2024",90.277777775
+"194","Setophaga discolor","Prairie Warbler","landbird","Passeriformes","Parulidae",7.64,0.561678605,1.470588235,9.635978011,3,3,14,5,1,"",11.1764705875
+"195","Protonotaria citrea","Prothonotary Warbler","landbird","Passeriformes","Parulidae",14.3,0.941194768,1.470588235,8.784908819,3,3,14,5,1,"",11.1764705875
+"196","Haemorhous purpureus","Purple Finch","landbird","Passeriformes","Fringillidae",23.3,1.406946892,2,16.29788808,5,1,8,2,1,"",3
+"197","Progne subis","Purple Martin","landbird","Passeriformes","Hirundinidae",53.79,2.802157406,2,6.419240511,1,5,9,2,2,"",14
+"198","Calidris maritima","Purple Sandpiper","shorebird","Charadriiformes","Scolopacidae",65.1,3.279017102,3.535714286,5.837704212,1,5,12,5,5,"Shorebirds strongly negatively affected in Song et al. 2024",106.696428575
+"199","Mareca strepera","Gadwall","waterfowl","Anseriformes","Anatidae",915.58,28.92115929,5,12.35255351,4,2,8,1,5,"Reduced to 26% of original population in FPV treatment (Song et al. 2024)",17.5
+"200","Sitta canadensis","Red-breasted Nuthatch","landbird","Passeriformes","Sittidae",9.8,0.689501293,2,6.840131529,2,4,7,1,1,"",3
+"201","Melanerpes carolinus","Red-bellied Woodpecker","landbird","Piciformes","Picidae",69.5,3.460462928,3,8.133619072,2,4,7,1,1,"",3.5
+"202","Loxia curvirostra","Red Crossbill","landbird","Passeriformes","Fringillidae",38.29,2.118023263,3,7.280035607,2,4,9,2,1,"",7
+"203","Melanitta americana","Black Scoter","waterfowl","Anseriformes","Anatidae",1049.98,32.37436981,5,6.380800237,1,5,13,5,5,"""Feeds in open water; usually avoids dense aquatic vegetation which is rare in its breeding areas.""",125
+"204","Calidris canutus","Red Knot","shorebird","Charadriiformes","Scolopacidae",141.87,6.227895887,4,4.815036149,1,5,13,5,5,"Shorebirds strongly negatively affected in Song et al. 2024",112.5
+"205","Vireo olivaceus","Red-eyed Vireo","landbird","Passeriformes","Vireonidae",16.06,1.035599159,2,5.721089353,1,5,5,1,1,"",3.5
+"206","Melanerpes erythrocephalus","Red-headed Woodpecker","landbird","Piciformes","Picidae",71.6,3.546341691,2.454545455,15.17167491,5,1,12,5,1,"",8.6363636375
+"207","Melanitta deglandi","White-winged Scoter","waterfowl","Anseriformes","Anatidae",1800.17,50.46720342,5,6.716110829,2,4,12,4,5,"",90
+"208","Buteo lineatus","Red-shouldered Hawk","landbird","Accipitriformes","Accipitridae",603.72,20.52471008,4,17.46594039,5,1,8,1,1,"",2.5
+"209","Buteo jamaicensis","Red-tailed Hawk","landbird","Accipitriformes","Accipitridae",1101.16,33.66840615,4,24.73170557,5,1,7,1,1,"",2.5
+"210","Melanitta perspicillata","Surf Scoter","waterfowl","Anseriformes","Anatidae",1096.33,33.54674532,5,6.420554513,1,5,11,4,5,"",100
+"211","Agelaius phoeniceus","Red-winged Blackbird","landbird","Passeriformes","Icteridae",50.78,2.672377224,3,10.32399176,3,3,8,2,2,"",12
+"212","Mergus merganser","Common Merganser","waterfowl","Anseriformes","Anatidae",1451.02,42.25680685,5,11.33160116,4,2,10,3,5,"completely absent in FPV (Song et al. 2024)",52.5
+"213","Mergus serrator","Red-breasted Merganser","waterfowl","Anseriformes","Anatidae",1015.17,31.48788141,5,11.33580297,4,2,9,2,5,"",35
+"214","Phasianus colchicus","Ring-necked Pheasant","landbird","Galliformes","Phasianidae",1120.31,34.14984546,5,18.23403523,5,1,8,1,1,"",3
+"215","Pheucticus ludovicianus","Rose-breasted Grosbeak","landbird","Passeriformes","Cardinalidae",42,2.285628719,2,7.002746657,2,4,10,3,1,"",9
+"216","Columba livia","Rock Pigeon","landbird","Columbiformes","Columbidae",354.2,13.23016685,4,15.95345576,5,1,7,1,1,"",2.5
+"217","Buteo lagopus","Rough-legged Hawk","landbird","Accipitriformes","Accipitridae",949.76,29.80738036,3,19.54447995,5,1,9,2,1,"",4
+"218","Nannopterum auritum","Double-crested Cormorant","waterbird","Suliformes","Phalacrocoracidae",1806.49,50.61306522,5,7.188062921,2,4,8,2,3,"",27
+"219","Nyctanassa violacea","Yellow-crowned Night Heron","waterbird","Pelecaniformes","Ardeidae",681.67,22.6833524,3.4,33.95081046,5,1,12,5,3,"",33
+"220","Archilochus colubris","Ruby-throated Hummingbird","landbird","Apodiformes","Trochilidae",3.09,0.266527258,2,11.57611245,4,2,8,1,1,"",2
+"221","Corthylio calendula","Ruby-crowned Kinglet","landbird","Passeriformes","Regulidae",6.19,0.472299869,1,6.285223499,1,5,7,1,1,"",3
+"222","Nycticorax nycticorax","Black-crowned Night Heron","waterbird","Pelecaniformes","Ardeidae",810,26.14545796,4,12.25769294,4,2,10,3,3,"Remained mostly stable - increased 1.24x (Song et al. 2024)",27
+"223","Arenaria interpres","Ruddy Turnstone","shorebird","Charadriiformes","Scolopacidae",135.98,6.014176486,4,12.07954828,4,2,14,5,5,"Shorebirds strongly negatively affected in Song et al. 2024",75
+"224","Bonasa umbellus","Ruffed Grouse","landbird","Galliformes","Phasianidae",530.91,18.46348621,5,12.43928823,4,2,8,1,1,"",3.5
+"225","Euphagus carolinus","Rusty Blackbird","landbird","Passeriformes","Icteridae",59.57,3.047859886,3,14.20393003,5,1,12,5,1,"",10
+"226","Oxyura jamaicensis","Ruddy Duck","waterfowl","Anseriformes","Anatidae",608.15,20.64865475,5,9.207512113,3,3,8,1,5,"Needs space to take off",20
+"227","Pelecanus erythrorhynchos","American White Pelican","waterbird","Pelecaniformes","Pelecanidae",5608.48,128.6566246,5,9.379035159,3,3,10,3,4,"",48
+"228","Calidris alba","Sanderling","shorebird","Charadriiformes","Scolopacidae",51.71,2.712616828,3,10.88588498,4,2,13,5,5,"Shorebirds strongly negatively affected in Song et al. 2024",62.5
+"229","Pelecanus occidentalis","Brown Pelican","waterbird","Pelecaniformes","Pelecanidae",3427.84,85.77243573,5,9.724952543,3,3,11,4,4,"",64
+"230","Passerculus sandwichensis","Savannah Sparrow","landbird","Passeriformes","Passerellidae",19.97,1.239143191,2.416666667,11.28360618,4,2,10,4,1,"",8.833333334
+"231","Piranga olivacea","Scarlet Tanager","landbird","Passeriformes","Cardinalidae",28.2,1.646418268,2,6.772148,2,4,12,4,1,"",12
+"232","Cistothorus stellaris","Sedge Wren","landbird","Passeriformes","Troglodytidae",9.04,0.645156598,2,8.168481776,2,4,9,3,1,"",9
+"233","Calidris pusilla","Semipalmated Sandpiper","shorebird","Charadriiformes","Scolopacidae",27.5,1.612688607,3.535714286,7.704814845,2,4,14,5,5,"Shorebirds strongly negatively affected in Song et al. 2024",94.196428575
+"234","Limnodromus griseus","Short-billed Dowitcher","shorebird","Charadriiformes","Scolopacidae",110.53,5.070671422,4,17.05228812,5,1,15,5,5,"Shorebirds strongly negatively affected in Song et al. 2024",62.5
+"235","Asio flammeus","Short-eared Owl","landbird","Strigiformes","Strigidae",322.61,12.2505435,3,7.844224494,2,4,12,4,1,"",14
+"236","Accipiter striatus","Sharp-shinned Hawk","landbird","Accipitriformes","Accipitridae",130.59,5.817164037,2,22.8759752,5,1,9,2,1,"",3
+"237","Plectrophenax nivalis","Snow Bunting","landbird","Passeriformes","Calcariidae",42.2,2.294587881,2,8.216727041,2,4,11,4,1,"",12
+"238","Phalacrocorax carbo","Great Cormorant","waterbird","Suliformes","Phalacrocoracidae",2528.97,66.77018097,5,8.654677411,3,3,10,3,3,"Remained mostly stable - increased 1.21x (Song et al. 2024)",36
+"239","Plegadis falcinellus","Glossy Ibis","waterbird","Pelecaniformes","Threskiornithidae",626.61,21.16343827,4,5.695472285,1,5,8,2,3,"",27
+"240","Bubo scandiacus","Snowy Owl","landbird","Strigiformes","Strigidae",2028.76,55.68817339,4,8.644468768,3,3,13,5,1,"",17.5
+"241","Tringa solitaria","Solitary Sandpiper","shorebird","Charadriiformes","Scolopacidae",48.4,2.568798261,3,13.05361176,4,2,10,3,5,"Shorebirds strongly negatively affected in Song et al. 2024",37.5
+"242","Melospiza melodia","Song Sparrow","landbird","Passeriformes","Passerellidae",21.91,1.33745483,3,6.404736197,1,5,9,2,1,"",8
+"243","Podiceps auritus","Horned Grebe","waterbird","Podicipediformes","Podicipedidae",453,16.20152579,5,6.340335355,1,5,13,5,5,"",125
+"244","Actitis macularius","Spotted Sandpiper","shorebird","Charadriiformes","Scolopacidae",40.4,2.213680614,3,10.8722438,4,2,12,4,5,"Shorebirds strongly negatively affected in Song et al. 2024",50
+"245","Canachites canadensis","Spruce Grouse","landbird","Galliformes","Phasianidae",473.65,16.80731411,4.944444444,5.977227552,1,5,8,2,1,"",9.944444444
+"246","Calidris himantopus","Stilt Sandpiper","shorebird","Charadriiformes","Scolopacidae",57.24,2.949343965,3.535714286,7.309369927,2,4,15,5,5,"Shorebirds strongly negatively affected in Song et al. 2024",94.196428575
+"247","Piranga rubra","Summer Tanager","landbird","Passeriformes","Cardinalidae",29.13,1.691003136,2,7.163096649,2,4,8,2,1,"",6
+"248","Podiceps grisegena","Red-necked Grebe","waterbird","Podicipediformes","Podicipedidae",1023,31.6877455,5,6.199910225,1,5,9,3,5,"",75
+"249","Melospiza georgiana","Swamp Sparrow","landbird","Passeriformes","Passerellidae",16.1,1.037722765,2,7.010961465,2,4,7,1,2,"",6
+"250","Catharus ustulatus","Swainson's Thrush","landbird","Passeriformes","Turdidae",30.3,1.74673899,2,6.155982756,1,5,9,2,1,"",7
+"251","Limnothlypis swainsonii","Swainson's Warbler","landbird","Passeriformes","Parulidae",18.9,1.184203864,1.470588235,8.17918726,2,4,13,5,1,"",13.6764705875
+"252","Leiothlypis peregrina","Tennessee Warbler","landbird","Passeriformes","Parulidae",8.9,0.636917404,1.470588235,11.0062338,4,2,10,4,1,"",6.94117647
+"253","Tachycineta bicolor","Tree Swallow","landbird","Passeriformes","Hirundinidae",21.2,1.301660478,1,5.767823852,1,5,10,3,2,"",18
+"254","Podilymbus podiceps","Pied-billed Grebe","waterbird","Podicipediformes","Podicipedidae",411.93,14.98187498,5,5.903639807,1,5,8,2,5,"",50
+"255","Porzana carolina","Sora","waterbird","Gruiformes","Rallidae",74.8,3.6763568,4,15.48026005,5,1,9,2,3,"",15
+"256","Baeolophus bicolor","Tufted Titmouse","landbird","Passeriformes","Paridae",21.6,1.321851885,2,7.86580394,2,4,7,1,1,"",3
+"257","Rallus elegans","King Rail","waterbird","Gruiformes","Rallidae",313.31,11.95897557,4,6.627453324,1,5,15,5,3,"",67.5
+"258","Cathartes aura","Turkey Vulture","landbird","Cathartiformes","Cathartidae",1518.24,43.86240696,4,22.67761567,5,1,6,1,1,"",2.5
+"259","Bartramia longicauda","Upland Sandpiper","shorebird","Charadriiformes","Scolopacidae",158.92,6.838013615,3.535714286,7.881326899,2,4,11,4,5,"",75.35714286
+"260","Catharus fuscescens","Veery","landbird","Passeriformes","Turdidae",31.9,1.822349278,2,5.977227552,1,5,11,4,1,"",14
+"261","Pooecetes gramineus","Vesper Sparrow","landbird","Passeriformes","Passerellidae",25.68,1.524268825,3,6.141142038,1,5,11,4,1,"",16
+"262","Rallus limicola","Virginia Rail","waterbird","Gruiformes","Rallidae",84.1,4.048826335,3,9.862612255,3,3,10,3,3,"",27
+"263","Vireo gilvus","Warbling Vireo","landbird","Passeriformes","Vireonidae",12.67,0.851916172,2,5.886931016,1,5,8,2,1,"",7
+"264","Calidris mauri","Western Sandpiper","shorebird","Charadriiformes","Scolopacidae",27.82,1.628126456,3.535714286,7.602335506,2,4,14,5,5,"Shorebirds strongly negatively affected in Song et al. 2024",94.196428575
+"265","Sitta carolinensis","White-breasted Nuthatch","landbird","Passeriformes","Sittidae",21,1.291539609,2,7.100573713,2,4,6,1,1,"",3
+"266","Zonotrichia leucophrys","White-crowned Sparrow","landbird","Passeriformes","Passerellidae",28,1.636796459,2.416666667,13.96678372,4,2,9,3,1,"",6.6250000005
+"267","Vireo griseus","White-eyed Vireo","landbird","Passeriformes","Vireonidae",11.4,0.780946896,2,6.065377956,1,5,7,1,1,"",3.5
+"268","Spatula clypeata","Northern Shoveler","waterfowl","Anseriformes","Anatidae",612.56,20.77188167,5,13.4446464,4,2,7,1,5,"completely absent in FPV (Song et al. 2024)",17.5
+"269","Zonotrichia albicollis","White-throated Sparrow","landbird","Passeriformes","Passerellidae",24.4,1.461421893,3,6.290796182,1,5,9,2,1,"",8
+"270","Loxia leucoptera","White-winged Crossbill","landbird","Passeriformes","Fringillidae",28.69,1.669941032,2.125,14.35846086,5,1,6,1,1,"",1.5625
+"271","Spatula discors","Blue-winged Teal","waterfowl","Anseriformes","Anatidae",359.44,13.39113766,5,12.90516027,4,2,8,1,4,"",14
+"272","Empidonax traillii","Willow Flycatcher","landbird","Passeriformes","Tyrannidae",13.39,0.891587777,1,6.242977594,1,5,10,3,1,"",9
+"273","Tringa semipalmata","Willet","shorebird","Charadriiformes","Scolopacidae",245.7,9.789441405,3,12.39677009,4,2,14,5,5,"Shorebirds strongly negatively affected in Song et al. 2024",62.5
+"274","Gallinago delicata","Wilson's Snipe","shorebird","Charadriiformes","Scolopacidae",112.5,5.144979459,3.535714286,6.496773973,1,5,9,3,5,"Shorebirds strongly negatively affected in Song et al. 2024",64.017857145
+"275","Meleagris gallopavo","Wild Turkey","landbird","Galliformes","Phasianidae",5791.37,132.1017438,5,9.659882117,3,3,7,1,1,"",4
+"276","Troglodytes hiemalis","Winter Wren","landbird","Passeriformes","Troglodytidae",9.74,0.686023061,2,9.467681646,3,3,12,4,1,"",10
+"277","Cardellina pusilla","Wilson's Warbler","landbird","Passeriformes","Parulidae",6.96,0.520174721,2,7.835995242,2,4,9,2,1,"",6
+"278","Helmitheros vermivorum","Worm-eating Warbler","landbird","Passeriformes","Parulidae",14.16,0.933600058,1.470588235,25.80339967,5,1,13,5,1,"",6.1764705875
+"279","Sterna forsteri","Forster's Tern","waterbird","Charadriiformes","Laridae",149,6.484527479,2,13.87379953,4,2,13,5,5,"Gulls and terns strongly negatively affected in Song et al. 2024",50
+"280","Hylocichla mustelina","Wood Thrush","landbird","Passeriformes","Turdidae",50.09,2.642437997,2,10.63752226,3,3,14,5,1,"",12.5
+"281","Thalasseus maximus","Royal Tern","waterbird","Charadriiformes","Laridae",415.31,15.08303503,4,13.12897353,4,2,11,4,5,"Gulls and terns strongly negatively affected in Song et al. 2024",60
+"282","Thalasseus sandvicensis","Sandwich Tern","waterbird","Charadriiformes","Laridae",199.83,8.257591892,3,18.03815902,5,1,10,3,5,"Shorebirds strongly negatively affected in Song et al. 2024",30
+"283","Xema sabini","Sabine's Gull","waterbird","Charadriiformes","Laridae",198,8.19526735,3.114285714,8.155122725,2,4,12,5,5,"Gulls and terns strongly negatively affected in Song et al. 2024",88.928571425
+"284","Icteria virens","Yellow-breasted Chat","landbird","Passeriformes","Icteriidae",24.89,1.485547635,3,22.23912257,5,1,10,4,1,"",8
+"285","Coccyzus americanus","Yellow-billed Cuckoo","landbird","Cuculiformes","Cuculidae",64,3.233321963,2,10.82553181,3,3,11,4,1,"",10
+"286","Empidonax flaviventris","Yellow-bellied Flycatcher","landbird","Passeriformes","Tyrannidae",11.8,0.803443199,1,6.407380234,1,5,10,3,1,"",9
+"287","Sphyrapicus varius","Yellow-bellied Sapsucker","landbird","Piciformes","Picidae",50.3,2.651557597,2,5.861614378,1,5,7,1,1,"",3.5
+"288","Setophaga petechia","Yellow Warbler","landbird","Passeriformes","Parulidae",10.8,0.746938491,1.470588235,18.00334865,5,1,8,2,1,"",2.470588235
+"289","Setophaga coronata","Yellow-rumped Warbler","landbird","Passeriformes","Parulidae",11.94,0.811284922,2,8.667672597,3,3,8,2,1,"",5
+"290","Vireo flavifrons","Yellow-throated Vireo","landbird","Passeriformes","Vireonidae",18,1.13756731,2,6.28382815,1,5,10,3,1,"",10.5
+"291","Setophaga dominica","Yellow-throated Warbler","landbird","Passeriformes","Parulidae",9.69,0.683121645,1,6.049900807,1,5,10,3,1,"",9

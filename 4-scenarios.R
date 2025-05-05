@@ -762,9 +762,19 @@ dev.off()
 #   geom_point()
 # 
 
+####data cleanup####
 
+data <- read.csv("data_outputs/final_analysis_data_n291.csv")
 
+data1 <- data %>%
+  select(!c("X","species_code","Song_etal","exposure", "exposure_scaled","exposure_scaled_2","risk","reduction_factor","abs_target"))
 
+colnames(data1) <- c("scientific_name","common_name","group","order","family","CCS_raw","habitat_score","habitat_comment","bodymass_g","defication_rate_estimated","axial_length_estimated","wingloading_quantile","axial_length_quantile","CCS_quantile","VA_risk","VI")
+
+data2 <- data1 %>%
+  select("scientific_name","common_name","group","order","family","bodymass_g","defication_rate_estimated","wingloading_quantile","axial_length_estimated","axial_length_quantile","VA_risk","CCS_raw","CCS_quantile","habitat_score","habitat_comment","VI")
+
+write.csv(data2, file = "data_outputs/VI_species_table.csv")
 
 #### comparisons ####
 library(cmdstanr)
