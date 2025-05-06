@@ -782,6 +782,61 @@ all_data <- left_join(all_data_ranked,selected_lakes)
 all_data1 <- left_join(all_data,lake_risk_df)
 plot(log(all_data1$Shape_Area),log(all_data1$w_mean_risk))
 
+#lake names?
+
+waterbodies <- st_read("D:maps/USA_Detailed_Water_Bodies/USA_Detailed_Water_Bodies.shp")
+
+high_risk_lakes <- lake_risk_df %>%
+  filter(quantile == 9)
+selected_lakes_HR <- selected_lakes %>%
+  filter(Water_ID %in% high_risk_lakes$Water_ID)
+
+lakes_pro <- st_transform(selected_lakes_HR, crs = st_crs(4326))
+
+png("figures/9th_quant_waterbodies.png", height = 9, width = 11, units = "in",res=300)
+
+ggplot()+
+  geom_sf(data = NE_pro)+
+  geom_sf(data = lakes_pro, col = "red")+
+  theme_classic(base_size = 15)+
+  #geom_point(data = outlier_data_lakes, aes(x = water_lon, y = water_lat, col = mean_biof_risk_scaled, size = energy_scaled), alpha = 0.5)+
+  #scale_color_viridis(option="inferno",limits = c(0,30))+
+  ylab("")+
+  xlab("")+
+  scale_size(guide="none")
+#scale_color_gsea(reverse = TRUE, limits = c(-19,19))
+
+dev.off()
+
+low_risk_lakes <- lake_risk_df %>%
+  filter(quantile == 1)
+selected_lakes_LR <- selected_lakes %>%
+  filter(Water_ID %in% low_risk_lakes$Water_ID)
+
+lakes_pro1 <- st_transform(selected_lakes_LR, crs = st_crs(4326))
+
+png("figures/1st_quant_waterbodies.png", height = 9, width = 11, units = "in",res=300)
+
+ggplot()+
+  geom_sf(data = NE_pro)+
+  geom_sf(data = lakes_pro1, col = "red")+
+  theme_classic(base_size = 15)+
+  #geom_point(data = outlier_data_lakes, aes(x = water_lon, y = water_lat, col = mean_biof_risk_scaled, size = energy_scaled), alpha = 0.5)+
+  #scale_color_viridis(option="inferno",limits = c(0,30))+
+  ylab("")+
+  xlab("")+
+  scale_size(guide="none")
+#scale_color_gsea(reverse = TRUE, limits = c(-19,19))
+
+dev.off()
+
+
+lake_data <- left_join(selected_lakes,lake_risk_df)
+
+ggplot()+
+  geom_boxplot(data = lake_data, aes(x=Water_Type, y=w_mean_risk))
+
+
 #### comparisons ####
 library(cmdstanr)
 
