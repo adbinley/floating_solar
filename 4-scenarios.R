@@ -776,6 +776,12 @@ data2 <- data1 %>%
 
 write.csv(data2, file = "data_outputs/VI_species_table.csv")
 
+load("data/all_data_model_updated.RData")
+
+all_data <- left_join(all_data_ranked,selected_lakes)
+all_data1 <- left_join(all_data,lake_risk_df)
+plot(log(all_data1$Shape_Area),log(all_data1$w_mean_risk))
+
 #### comparisons ####
 library(cmdstanr)
 
@@ -784,7 +790,7 @@ load("data_outputs/lake_risk_df_weighted.RData")
 
 data <- read.csv("data_outputs/final_analysis_data_n291.csv")
 
-#lakes <- read_sf("A:/Users/allis/OneDrive/Post-doc/big_data/floating_solar/Northeast_NHD_Alison")
+lakes <- read_sf("C:/Users/allis/OneDrive/Post-doc/big_data/floating_solar/Northeast_NHD_Alison")
 lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
 
 selected_lakes <- lakes %>%
