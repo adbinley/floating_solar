@@ -10,9 +10,9 @@ library(ggsci)
 library(RColorBrewer)
 
 #map data
-state_lines <- st_read("D:/maps/NA_politicalboundaries_shapefile/PoliticalBoundaries_Shapefile/NA_PoliticalDivisions/data/bound_p/boundaries_p_2021_v3.shp")
+state_lines <- st_read("A:/maps/NA_politicalboundaries_shapefile/PoliticalBoundaries_Shapefile/NA_PoliticalDivisions/data/bound_p/boundaries_p_2021_v3.shp")
 
-waterbodies <- st_read("D:maps/USA_Detailed_Water_Bodies/USA_Detailed_Water_Bodies.shp")
+waterbodies <- st_read("A:maps/USA_Detailed_Water_Bodies/USA_Detailed_Water_Bodies.shp")
 
 GL <- waterbodies %>%
   filter(NAME %in% c("Lake Erie","Lake Ontario"))
@@ -953,20 +953,20 @@ ggplot(data = plot_data, aes(x = (richness), y = (sum_biofoul_risk)))+
 
 #mapping approach
 
-load(all_data2, file = "data_outputs/mapping_data.RData")
+load("data_outputs/mapping_data.RData")
 
 plot_data <- all_data2 %>%
   arrange((w_mean_risk))
 
 plot_data$scenario <- ifelse(plot_data$Biodiversi == 1 & plot_data$Social_B_1 == 1, "Both",
-                             ifelse(plot_data$Biodiversi == 1 & plot_data$Social_B_1 == 0, "Fresh Water",
+                             ifelse(plot_data$Biodiversi == 1 & plot_data$Social_B_1 == 0, "Freshwater",
                                     ifelse(plot_data$Biodiversi == 0 & plot_data$Social_B_1 == 1, "Social", "Neither")))
 
-plot_data$scenario <- factor(plot_data$scenario, levels = c("Neither","Social","Fresh Water","Both"))
+plot_data$scenario <- factor(plot_data$scenario, levels = c("Neither","Both","Social","Freshwater"))
 
-FW_Soc <- "#117733"
-Soc <- "#DDCC77"
-FW <- "#332288"
+# FW_Soc <- "#117733"
+# Soc <- "#DDCC77"
+# FW <- "#332288"
 
 #not including richness
 png("figures/scenario_comparison_map.png", height = 9, width = 11, units = "in",res=300)
@@ -975,10 +975,10 @@ ggplot()+
   geom_sf(data = NE_pro)+
   geom_sf(data=GL_crop, fill ="#4682B4")+
   theme_classic(base_size = 15)+
-  geom_point(data = plot_data, aes(x = water_lon, y = water_lat, col = scenario, size = w_mean_risk_scaled, alpha = 0.5))+
+  geom_point(data = plot_data, aes(x = water_lon, y = water_lat, col = scenario, size = w_mean_risk_scaled, alpha = 1))+
   #scale_color_viridis(option="inferno",limits = c(-3,19))+
   #scale_fill_brewer(palette = "YlOrRd")+
-  scale_color_manual(values=c("#CC6677","#DDCC77","#332288","#117733"))+
+  scale_color_manual(values=c("#D81B60","#004D40","#FFC107","#03C7F1"))+
   ylab("")+
   xlab("")+
   labs(color = "Value")+
