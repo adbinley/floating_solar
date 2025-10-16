@@ -208,9 +208,16 @@ sum(dif<=0)
 #spider/radar charts
 library(fmsb)
 
+data <- read.csv("data_outputs/final_analysis_data_n291.csv")
+data <- data %>%
+  select(!c("exposure","exposure_scaled","exposure_scaled_2","risk","reduction_factor","abs_target"))
+data$VI_scaled <- (data$VI - min(data$VI))/(max(data$VI)-min(data$VI))
+
+write_csv(data, "data/VI_scaled_values.csv")
+
 radar_data <- data %>%
   filter(species_code %in% c("horgre","wessan","osprey","mallar3","leabit","marwre"))%>%
-  select(c("common_name.x","VI","vis_acuity_risk","CCS_quantile","wingloading_quantile","habitat_score"))
+  select(c("common_name.x","VI","VI_scaled","vis_acuity_risk","CCS_quantile","wingloading_quantile","habitat_score"))
 
 radar_data <- radar_data %>%
   arrange(common_name.x)
