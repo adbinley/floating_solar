@@ -4,6 +4,7 @@ library(ebirdst)
 library(terra)
 library(stringr)
 library(viridis)
+library(readxl)
 
 #load in lake data
 lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
@@ -44,6 +45,12 @@ updated_selection <- read.csv("data/species_selection_updated.csv")
 updated_selection1 <- updated_selection %>%
   filter(northeast_america == 1)
 species_codes <- updated_selection1$species_code
+
+missing_sps <- read_excel("data/Appendix A.xlsx")
+missing_sps <- missing_sps$species_code
+missing_sps1 <- setdiff(missing_sps,species_codes)
+
+
 # 
 # #when loop fails (memory shortage) use this to figure out where to restart
 # complete <- list.files(path = "D:/floating_solar/generated/")
@@ -69,26 +76,32 @@ species_codes <- updated_selection1$species_code
 #for(s in 1:3){ #test loop on a few species first to make sure its working
 
 #which(complete_codes=="wilfly")
+which(updated_selection1$species_code=="chswar")
+
+#these species were stored elsewhere
+missing_sps2 <- c("amgplo","rosgoo","bubsan","hudgod","retloo","glagul","margod","pecsan",
+                  "semsan","solsan","stisan","sabgul")
 
 
-for(s in 1:length(species_codes)){
+for(s in 1:length(missing_sps2)){
   
   skip_to_next <- FALSE
   
   #sp <- species_data$species_code[s]
   #sp <- na_species[s]
   #sp <- complete_codes[s]
-  sp <- species_codes[s]
+  #sp <- species_codes[s]
+  sp <- missing_sps2[s]
   
   #trycatch added in case one raster fails to load - won't break loop
   #load raster into R for each species
-  tryCatch(bird_data <- rast(paste0("D:/big_data/eBird_FAC/2022/",sp,"/weekly/",sp,"_abundance_median_3km_2022.tif")),
-           error = function(e){skip_to_next <<- TRUE})
+  # tryCatch(bird_data <- rast(paste0("D:/big_data/eBird_FAC/2022/",sp,"/weekly/",sp,"_abundance_median_3km_2022.tif")),
+  #          error = function(e){skip_to_next <<- TRUE})
   
   #bird_data <- rast(paste0("D:/big_data/eBird_FAC/2022/",sp,"/weekly/",sp,"_abundance_median_3km_2022.tif"))
   
-  # tryCatch(bird_data <- rast(paste0("D:/floating_solar/ebird/2022/",sp,"/weekly/",sp,"_abundance_median_3km_2022.tif")),
-  #          error = function(e){skip_to_next <<- TRUE})
+  tryCatch(bird_data <- rast(paste0("D:/floating_solar/ebird/2022/",sp,"/weekly/",sp,"_abundance_median_3km_2022.tif")),
+           error = function(e){skip_to_next <<- TRUE})
   
   
   if(skip_to_next) {next}
@@ -142,7 +155,7 @@ for(s in 1:length(species_codes)){
   
   rm(species_stack)
   rm(week_list)
-  rm(max_values)
+  #rm(max_values)
   rm(bird_data)
   rm(bird_data_cr)
   rm(bird_prop_abd)
@@ -207,12 +220,14 @@ lakes_vec_pro <- project(lakes_vec, crs(bird_data))
 
 rm(sp)
 rm(bird_data)
+which(species_codes=="laugul")
 
-for(a in 1:length(species_codes)){
+#need to do for missing_sps1, not just missing_sps2
+for(a in 1:length(missing_sps1)){
   #for(a in 1:length(na_species)){
   
   #sp <- complete_codes[a]
-  sp <- species_codes[a]
+  sp <- missing_sps1[a]
   #sp <- na_species[a]
   
   bird_data <- rast(paste0("D:/floating_solar/generated/",sp,"_weekly_values.tif"))
