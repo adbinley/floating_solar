@@ -60,25 +60,28 @@ rm(lakes)
 #calculate exposure to FPV
 exposure_vector <- c()
 
+buf <- 5000 #meters
+
 for(s in 1:length(data$species_code)){
 
   sp <- data$species_code[s]
   
-  load(paste0("D:/floating_solar/data_outputs/",sp,"_lake_abd_weight.RData")) #this is sum, mean is also available
+  #load(paste0("D:/floating_solar/data_outputs/",sp,"_lake_abd_weight.RData")) #this is sum, mean is also available
+  #seasonal version
+  load(paste0("D:/floating_solar/data_outputs/",buf,"_",sp,"_lake_abd_weight_weekly.RData"))
   
   lake_bird_data1 <- lake_bird_data %>%
     filter(Water_ID %in% lake_coverage$Water_ID)
   
-  lake_bird_data2 <- left_join(lake_bird_data1, lake_coverage)
-  
   # #calculating exposure based on max abundance at each waterbody and solar coverage
-  lake_bird_data2 <- lake_bird_data2 %>%
-    #multiply importance at each lake by the proportion of the lake to be covered
-    mutate(exposure = max*FPV_Pct_co)
+  # lake_bird_data2 <- lake_bird_data2 %>%
+  #   #multiply importance at each lake by the proportion of the lake to be covered
+  #   mutate(exposure = max*FPV_Pct_co)
   
-  sum_exposure <- sum(lake_bird_data2$exposure) #sum of exposure across study range - will eventually be scaled based on other species values
+  
+  #sum_exposure <- sum(lake_bird_data2$exposure) #sum of exposure across study range - will eventually be scaled based on other species values
 
-  exposure_vector <- c(exposure_vector, sum_exposure)
+  #exposure_vector <- c(exposure_vector, sum_exposure)
   
 }
 
@@ -111,6 +114,7 @@ save(data, file = "data_outputs/final_analysis_data.RData")
 write.csv(data, file = "data_outputs/final_analysis_data.csv")
 
 write.csv(data, "data_outputs/final_analysis_data_n291.csv")
+data <- read.csv("data_outputs/final_analysis_data_n291.csv")
 
 #most vulnerable species
 
@@ -333,6 +337,9 @@ dev.off()
 
 #load("data_outputs/final_analysis_data.RData")
 data <- read.csv("data_outputs/final_analysis_data_n291.csv")
+data <- data %>%
+  select(!c("exposure","exposure_scaled","exposure_scaled_2","risk","reduction_factor","abs_target"))
+data$VI_scaled <- (data$VI - min(data$VI))/(max(data$VI)-min(data$VI))
 
 
 lakes <- read_sf("D:/floating_solar/Northeast_NHD_Alison")
@@ -352,37 +359,60 @@ rm(lakes)
 lake_VI_df <- data.frame(Water_ID = lake_coverage$Water_ID)
 lake_exp_df <- data.frame(Water_ID = lake_coverage$Water_ID)
 
-#which(data$species_code == "gbbgul")
+buf <- 5000
+#which(data$species_code == "lbbgul")
 
 for(s in 1:length(data$species_code)){
   
   sp <- data$species_code[s]
   
-  load(paste0("D:/floating_solar/data_outputs/",sp,"_lake_abd_weight.RData")) #this is sum, mean is also available
+  #skip_to_next <- FALSE
+  
+  #load(paste0("D:/floating_solar/data_outputs/",sp,"_lake_abd_weight.RData")) #this is sum, mean is also available
+  #tryCatch(
+  load(paste0("D:/floating_solar/data_outputs/",buf,"_",sp,"_lake_abd_weight_weekly.RData"))#,
+           #error = function(e){skip_to_next <<- TRUE})
+
+            #if(skip_to_next) {next}
+  
   
   lake_bird_data1 <- lake_bird_data %>%
     filter(Water_ID %in% lake_coverage$Water_ID)
   
-  lake_bird_data2 <- left_join(lake_bird_data1, lake_coverage)
+  #seasonal approach
+  lake_bird_data_seasonal <- lake_bird_data1 %>%
+    select(!"Water_ID")%>%
+    rowSums()
+
+  lake_bird_data2 <- data.frame(seasonal_sum=lake_bird_data_seasonal,Water_ID = lake_bird_data1$Water_ID)
   
-  #calculating exposure based on max abundance at each waterbody and solar coverage
-  #this gives us a scaled value that represents the range of exposures for each species
+  lake_bird_data2 <- left_join(lake_bird_data2, lake_coverage)
+  
   lake_bird_data2 <- lake_bird_data2 %>%
     #multiply importance at each lake by the proportion of the lake to be covered
-    #note here the scaling is for each species
-    mutate(importance = max)%>%
-    mutate(exposure = max*FPV_Pct_co)%>%
-    mutate(exposure_scaled_2 = scales::rescale(exposure, to = c(0,1)))
-    # mutate(exposure_scaled = ifelse(exposure != 0,
-    #                                 scales::rescale(exposure, to = c(1,5)),
-    #                                 0))
+    mutate(exposure = seasonal_sum*FPV_Pct_co)%>%
+    mutate(exposure_scaled = (exposure-min(exposure))/(max(exposure)-min(exposure)))
+  
+  lake_bird_data2$species_code <- rep(sp, length(lake_bird_data2$seasonal_sum))
+  
+  # #calculating exposure based on max abundance at each waterbody and solar coverage
+  # #this gives us a scaled value that represents the range of exposures for each species
+  # lake_bird_data2 <- lake_bird_data2 %>%
+  #   #multiply importance at each lake by the proportion of the lake to be covered
+  #   #note here the scaling is for each species
+  #   mutate(importance = max)%>%
+  #   mutate(exposure = max*FPV_Pct_co)%>%
+  #   mutate(exposure_scaled_2 = scales::rescale(exposure, to = c(0,1)))
+  #   # mutate(exposure_scaled = ifelse(exposure != 0,
+  #   #                                 scales::rescale(exposure, to = c(1,5)),
+  #   #                                 0))
   
   sp_data <- data %>%
     filter(species_code == sp)
   
   #calculating the VI for each species at each lake, using the specific exposure values for each lake
   #lake_bird_data2$lake_VI = ((sp_data$vis_acuity_risk+sp_data$wingloading_quantile)/2)*sp_data$CCS.max*((sp_data$habitat_score+lake_bird_data2$exposure_scaled)/2)
-  lake_bird_data2$risk = sp_data$VI * lake_bird_data2$exposure_scaled_2
+  lake_bird_data2$risk = sp_data$VI_scaled * lake_bird_data2$exposure_scaled
   
   sp_df <- lake_bird_data2 %>%
     select(c("Water_ID","risk"))
@@ -400,22 +430,25 @@ for(s in 1:length(data$species_code)){
   lake_exp_df <- left_join(lake_exp_df,sp_exp_df)
   
 }
-save(lake_exp_df, file = "data_outputs/lake_exp_df.RData")
-save(lake_VI_df, file="data_outputs/lake_VI_df.RData")
+# save(lake_exp_df, file = "data_outputs/lake_exp_df.RData")
+# save(lake_VI_df, file="data_outputs/lake_VI_df.RData")
 
-load("data_outputs/lake_VI_df.RData")
+save(lake_exp_df, file = "data_outputs/seasonal_lake_exp_df.RData")
+save(lake_VI_df, file="data_outputs/seasonal_lake_VI_df.RData")
 
-lake_risk_df <- data.frame(Water_ID = lake_VI_df$Water_ID,
-                      mean_risk = rowMeans(lake_VI_df[,2:ncol(lake_VI_df)]),
-                      sum_risk = rowSums(lake_VI_df[,2:ncol(lake_VI_df)]))
+#load("data_outputs/lake_VI_df.RData")
 
-lake_risk_df$mean_risk_scaled <- scale(risk_df$mean_risk)[,1]
+# lake_risk_df <- data.frame(Water_ID = lake_VI_df$Water_ID,
+#                       mean_risk = rowMeans(lake_VI_df[,2:ncol(lake_VI_df)]),
+#                       sum_risk = rowSums(lake_VI_df[,2:ncol(lake_VI_df)]))
+# 
+# lake_risk_df$mean_risk_scaled <- scale(risk_df$mean_risk)[,1]
+# 
+# save(lake_risk_df, file = "data_outputs/lake_risk_df.RData")
 
-save(lake_risk_df, file = "data_outputs/lake_risk_df.RData")
+#weighted mean approach
 
-#alternate approach
-
-load("data_outputs/lake_exp_df.RData")
+load("data_outputs/seasonal_lake_exp_df.RData")
 data <- read.csv("data_outputs/final_analysis_data_n291.csv")
 
 w_mean_risk <- c()
@@ -426,7 +459,7 @@ for(l in 1:length(lake_exp_df$Water_ID)){
   #                                     w_mean_risk = weighted.mean(lake_VI_df[,2:ncol(lake_VI_df)], data$VI))
   
   d <- lake_exp_df[l,2:ncol(lake_exp_df)]
-  w_risk <- weighted.mean(d,data$VI)
+  w_risk <- weighted.mean(d,data$VI_scaled)
   
   w_mean_risk <- c(w_mean_risk,w_risk)
   
@@ -435,11 +468,13 @@ for(l in 1:length(lake_exp_df$Water_ID)){
 lake_risk_df_weighted <- data.frame(Water_ID = lake_exp_df$Water_ID,
                                     w_mean_risk = w_mean_risk)
 
-save(lake_risk_df_weighted, file = "data_outputs/lake_risk_df_weighted.RData")
+#save(lake_risk_df_weighted, file = "data_outputs/lake_risk_df_weighted.RData")
+save(lake_risk_df_weighted, file = "data_outputs/seasonal_lake_risk_df_weighted.RData")
 
 #### start here ####
 #load("data_outputs/lake_risk_df.RData")
-load("data_outputs/lake_risk_df_weighted.RData")
+#load("data_outputs/lake_risk_df_weighted.RData")
+load("data_outputs/seasonal_lake_risk_df_weighted.RData")
 
 lake_risk_df <- lake_risk_df_weighted
 lake_risk_df$quantile <- ntile(x=lake_risk_df$w_mean_risk, n=9)
@@ -467,6 +502,7 @@ all_data2$energy_scaled <- scale(all_data2$year1_ener)[,1]
 all_data2$w_mean_risk_scaled <- scale(all_data2$w_mean_risk)[,1]
 
 save(all_data2, file = "data_outputs/mapping_data.RData")
+save(all_data2, file = "data_outputs/seasonal_mapping_data.RData")
 
 cor(all_data2$energy_scaled,all_data2$w_mean_risk_scaled, method = "spearman")
 
@@ -490,7 +526,7 @@ plot_data <- all_data2 %>%
 cols <- brewer.pal(9,"YlOrRd")
 
 #not including richness
-png("figures/risk_solar_overlay2.png", height = 9, width = 11, units = "in",res=300)
+png("figures/risk_solar_overlay2_seasonal.png", height = 9, width = 11, units = "in",res=300)
 
 ggplot()+
   geom_sf(data = NE_pro)+
@@ -577,35 +613,50 @@ lake_coverage <- lakes %>%
 lake_biofoul_df <- data.frame(Water_ID = lake_coverage$Water_ID)
 
 #which(data$species_code == "gbbgul")
+buf <- 5000
 
 for(s in 1:length(biofoul_data$species_code)){
   
   sp <- biofoul_data$species_code[s]
   
-  load(paste0("D:/floating_solar/data_outputs/",sp,"_lake_abd_weight.RData")) #this is sum, mean is also available
+  #load(paste0("D:/floating_solar/data_outputs/",sp,"_lake_abd_weight.RData")) #this is sum, mean is also available
+  load(paste0("D:/floating_solar/data_outputs/",buf,"_",sp,"_lake_abd_weight_weekly.RData"))#,
   
   lake_bird_data1 <- lake_bird_data %>%
     filter(Water_ID %in% lake_coverage$Water_ID)
   
-  lake_bird_data2 <- left_join(lake_bird_data1, lake_coverage)
+  #seasonal approach
+  lake_bird_data_seasonal <- lake_bird_data1 %>%
+    select(!"Water_ID")%>%
+    rowSums()
   
-  #calculating exposure based on max abundance at each waterbody and solar coverage
-  #this gives us a scaled value that represents the range of exposures for each species
+  lake_bird_data2 <- data.frame(seasonal_sum=lake_bird_data_seasonal,Water_ID = lake_bird_data1$Water_ID)
+  
+  lake_bird_data2 <- left_join(lake_bird_data2, lake_coverage)
+  
   lake_bird_data2 <- lake_bird_data2 %>%
     #multiply importance at each lake by the proportion of the lake to be covered
-    #note here the scaling is for each species
-    mutate(importance = max)%>%
-    mutate(exposure = max*FPV_Pct_co)%>%
-    mutate(exposure_scaled_2 = scales::rescale(exposure, to = c(0,1)))
-  # mutate(exposure_scaled = ifelse(exposure != 0,
-  #                                 scales::rescale(exposure, to = c(1,5)),
-  #                                 0))
+    mutate(exposure = seasonal_sum*FPV_Pct_co)%>%
+    mutate(exposure_scaled = (exposure-min(exposure))/(max(exposure)-min(exposure)))
+  
+  lake_bird_data2$species_code <- rep(sp, length(lake_bird_data2$seasonal_sum))
+  # #calculating exposure based on max abundance at each waterbody and solar coverage
+  # #this gives us a scaled value that represents the range of exposures for each species
+  # lake_bird_data2 <- lake_bird_data2 %>%
+  #   #multiply importance at each lake by the proportion of the lake to be covered
+  #   #note here the scaling is for each species
+  #   mutate(importance = max)%>%
+  #   mutate(exposure = max*FPV_Pct_co)%>%
+  #   mutate(exposure_scaled_2 = scales::rescale(exposure, to = c(0,1)))
+  # # mutate(exposure_scaled = ifelse(exposure != 0,
+  # #                                 scales::rescale(exposure, to = c(1,5)),
+  # #                                 0))
   
   sp_data <- biofoul_data %>%
     filter(species_code == sp)
   
   #calculating the biofoul risk for each species at each lake, using the specific exposure values for each lake
-  lake_bird_data2$biofoul_risk = sp_data$biofoul_risk * lake_bird_data2$exposure_scaled_2
+  lake_bird_data2$biofoul_risk = sp_data$biofoul_risk * lake_bird_data2$exposure_scaled
   
   sp_df <- lake_bird_data2 %>%
     select(c("Water_ID","biofoul_risk"))
@@ -617,8 +668,9 @@ for(s in 1:length(biofoul_data$species_code)){
   
 }
 
-save(lake_biofoul_df, file="data_outputs/lake_biofoul_df_updated.RData")
-load("data_outputs/lake_biofoul_df_updated.RData")
+save(lake_biofoul_df, file="data_outputs/lake_biofoul_df_seasonal.RData")
+#save(lake_biofoul_df, file="data_outputs/lake_biofoul_df_updated.RData")
+load("data_outputs/lake_biofoul_df_seasonal.RData")
 
 
 lake_biofoul_df1 <- data.frame(Water_ID = lake_biofoul_df$Water_ID,
@@ -630,7 +682,8 @@ lake_biofoul_df1$biofouling_quantile <- ntile(lake_biofoul_df1$sum_risk,9)
 
 colnames(lake_biofoul_df1) <- c("Water_ID","mean_biof_risk","sum_biof_risk","biof_risk_quantile")
 
-save(lake_biofoul_df1, file = "data_outputs/lake_biofoul_risk_df_updated.RData")
+# save(lake_biofoul_df1, file = "data_outputs/lake_biofoul_risk_df_updated.RData")
+save(lake_biofoul_df1, file = "data_outputs/lake_biofoul_risk_df_seasonal.RData")
 
 ####start here####
 
@@ -659,7 +712,7 @@ plot_data <- all_data_biof %>%
 cols <- brewer.pal(9,"YlGnBu")
 cols <- brewer.pal(9,"YlOrRd")
 
-png("figures/biofouling_risk_blue.png", height = 9, width = 11, units = "in",res=300)
+png("figures/biofouling_risk_blue_seasonal.png", height = 9, width = 11, units = "in",res=300)
 
 ggplot()+
   geom_sf(data = NE_pro)+
@@ -679,7 +732,7 @@ dev.off()
 
 #is biofouling risk simply high where risk to avian biodiversity is high?
 
-load("data_outputs/mapping_data.RData") #all_data2
+load("data_outputs/seasonal_mapping_data.RData") #all_data2
 
 biof_risk <- data.frame(Water_ID = all_data_biof$Water_ID,
                               biof_risk = scale(all_data_biof$mean_biof_risk),
@@ -840,8 +893,8 @@ ggplot()+
 #### comparisons ####
 library(cmdstanr)
 
-load("data_outputs/lake_biofoul_risk_df.RData")
-load("data_outputs/lake_risk_df_weighted.RData")
+load("data_outputs/lake_biofoul_risk_df_seasonal.RData")
+load("data_outputs/seasonal_lake_risk_df_weighted.RData")
 
 data <- read.csv("data_outputs/final_analysis_data_n291.csv")
 
@@ -857,6 +910,7 @@ lake_risk_df <- lake_risk_df_weighted
 
 all_data_biof <- left_join(selected_lakes,lake_biofoul_df1)
 all_data <- left_join(all_data_biof,lake_risk_df)
+all_data$mean_biof_risk_scaled <- scale(all_data$mean_biof_risk)
 
 all_data_ranked <- data.frame(Water_ID = all_data$Water_ID,
                               VI_value = scale(all_data$w_mean_risk),
@@ -870,8 +924,9 @@ all_data_ranked <- all_data_ranked %>%
 
 all_data_ranked1 <- all_data_ranked
 
-save(all_data_ranked, file = "data/all_data_model_updated.RData")
-load("data/all_data_model_updated.RData")
+#save(all_data_ranked, file = "data/all_data_model_updated.RData")
+save(all_data_ranked, file = "data/all_data_model_seasonal.RData")
+load("data/all_data_model_seasonal.RData")
 
 scen_mod_data <- list(N = length(all_data_ranked$Water_ID),
                  n_WQ = as.integer(2),
@@ -898,8 +953,9 @@ scen_mod_fit <- scen_mod$sample(
 
 
 # save(scen_mod_fit, file = "mod_outputs/scen_mod_fit.RData")
-scen_mod_fit$save_object(file = "mod_outputs/scen_mod_fit_updated.RDS")
-scen_mod_fit<- readRDS("mod_outputs/scen_mod_fit_updated.RDS")
+#scen_mod_fit$save_object(file = "mod_outputs/scen_mod_fit_updated.RDS")
+scen_mod_fit$save_object(file = "mod_outputs/scen_mod_fit_seasonal.RDS")
+scen_mod_fit<- readRDS("mod_outputs/scen_mod_fit_seasonal.RDS")
 
 summary <- scen_mod_fit$summary()
 
@@ -953,7 +1009,8 @@ ggplot(data = plot_data, aes(x = (richness), y = (sum_biofoul_risk)))+
 
 #mapping approach
 
-load("data_outputs/mapping_data.RData")
+#load("data_outputs/mapping_data.RData")
+load("data_outputs/seasonal_mapping_data.RData")
 
 plot_data <- all_data2 %>%
   arrange((w_mean_risk))
@@ -969,7 +1026,7 @@ plot_data$scenario <- factor(plot_data$scenario, levels = c("Neither","Both","So
 # FW <- "#332288"
 
 #not including richness
-png("figures/scenario_comparison_map.png", height = 9, width = 11, units = "in",res=300)
+png("figures/scenario_comparison_map_seasonal.png", height = 9, width = 11, units = "in",res=300)
 
 ggplot()+
   geom_sf(data = NE_pro)+
