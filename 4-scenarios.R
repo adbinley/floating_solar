@@ -217,7 +217,7 @@ write_csv(data, "data/VI_scaled_values.csv")
 
 radar_data <- data %>%
   filter(species_code %in% c("horgre","wessan","osprey","mallar3","leabit","marwre"))%>%
-  select(c("common_name.x","VI","VI_scaled","vis_acuity_risk","CCS_quantile","wingloading_quantile","habitat_score"))
+  select(c("common_name.x","VI","vis_acuity_risk","CCS_quantile","wingloading_quantile","habitat_score"))
 
 radar_data <- radar_data %>%
   arrange(common_name.x)
@@ -233,7 +233,7 @@ radar_data[,3:6] <- sapply(radar_data[,3:6],as.numeric)
 
 # Define colors and titles
 colors <- c("#00AFBB", "#E7B800", "#FC4E07","#660000","#003300","#000066")
-titles <- c("Horned Grebe (VI: 125.0)","Least Bittern (VI: 26.4)","Mallard (VI: 12.0)","Marsh Wren (VI: 5)","Osprey (VI: 7.5)","Western Sandpiper (VI: 94.2)")
+titles <- c("Horned Grebe (VI: 1.00)","Least Bittern (VI: 0.20)","Mallard (VI: 0.02)","Marsh Wren (VI: 0.03)","Osprey (VI: 0.05)","Western Sandpiper (VI: 0.75)")
 
 # Reduce plot margin using par()
 # Split the screen in 3 parts
@@ -258,7 +258,7 @@ create_beautiful_radarchart <- function(data, color = "#00AFBB",
   )
 }
 
-png("figures/radar_plot.png",height = 9, width = 12, units = "in",res=300)
+png("figures/radar_plot_updated.png",height = 9, width = 12, units = "in",res=300)
 
 op <- par(mar = c(1, 1, 1, 1))
 par(mfrow = c(2,3))
